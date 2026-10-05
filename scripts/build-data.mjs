@@ -305,7 +305,13 @@ function parseCast(value) {
           if (!name || /bulunam/i.test(name) || missing(name)) continue;
           if (!names.includes(name)) names.push(name);
           const role = clean(e.role);
-          if (role && !/bulunam/i.test(role)) roles[name] = role;
+          /* 05.10.2026 v1.32: ayni oyuncu birden cok rolle gecebiliyor
+             (Cloud Atlas: Tom Hanks 6 rol). Roller birlestirilir. */
+          if (role && !/bulunam/i.test(role)) {
+            roles[name] = roles[name]
+              ? (roles[name].split(', ').includes(role) ? roles[name] : roles[name] + ', ' + role)
+              : role;
+          }
         }
         return { names, roles };
       }
