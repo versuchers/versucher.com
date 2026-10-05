@@ -2725,4 +2725,13 @@ ve diÄŸer sayfalar eski yoÄŸunluÄŸu koruyor.
 
 ### Etkilenen fonksiyonlar
 - `favRow()`, `playlistFavRow()`, `recentRow()` â†’ `.grid.home-grid`
-- CSS: `.home-grid`, `.home-grid .cover`, `.home-grid .poster-card`
+- CSS: `.home-grid`, `.home-grid .cover`, `.home-grid .poster-card`## v1.42 değişiklikleri
+
+### Anasayfa kart aralıkları küçültüldü (v1.41 ince ayarı)
+
+.home-grid gap degerleri istenen seviyeye dusuruldu:
+- Masaüstü: **25.2px / 15.6px** (önceki 35.2px / 25.6px)
+- Tablet (<=900px): 1.3rem / 0.85rem
+- Mobil (<=700px): 1.05rem / 0.7rem
+
+Liste sayfaları ve Rastgele bolumu eski .grid degerlerini koruyor (27.2px / 20.8px).
