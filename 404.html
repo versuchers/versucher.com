@@ -445,7 +445,10 @@ const CFG={
   lists:{label:'Playlistler',unit:'playlist',fav:'Favori playlistler',dateLabel:''}
 };
 const ROUTE_PREFIX={books:'kitap',films:'film',series:'dizi',playlists:'playlist'};
-const FILTER_TITLES={author:'Yazar',genre:'Tür',subgenre:'Alt tür',authorOrigin:'Yazar köken',fiction:'Kurgu mu?',city:'İlk kez okuduğum şehir',acquisition:'İlk erişim / edinim şekli',formats:'Okuduğum medium',translator:'Çevirmen',publisher:'Yayınevi',platform:'İlk kez hangi platformda',writtenLanguage:'Yazıldığı dil',language:'Dil',director:'Yönetmen',firstCity:'İlk kez izlenen şehir',country:'Yapım ülkesi',directorOrigin:'Yönetmen nereli',reason:'Nasıl keşfettim / neden izledim',done:'Bitirildi mi?',category:'Kategori',feeling:'His',creator:'Creator / showrunner',network:'Network',format:'Format',medium:'Medium',reasonFound:'Nasıl keşfettim',sourceWork:'Kaynak eser',sourceAuthor:'Kaynak yazar'};
+/* 05.10.2026 v1.39: kitaplarin ozel alanlari yeni sutun
+   adlariyla (film/dizi sutunlari ayni kaldigi icin ortak
+   alanlar degismedi). */
+const FILTER_TITLES={author:'Yazar Adı',genre:'Tür',subgenre:'Alt Tür',authorOrigin:'Yazar Ülke',fiction:'Eser Türü',city:'Okuduğum Şehir',acquisition:'Erişim Şeklim',formats:'Okuduğum Format',translator:'Çevirmen',publisher:'Yayınevi',platform:'İlk kez hangi platformda',writtenLanguage:'Orijinal Dili',language:'Dil',director:'Yönetmen',firstCity:'İlk kez izlenen şehir',country:'Yapım ülkesi',directorOrigin:'Yönetmen nereli',reason:'Nasıl keşfettim / neden izledim',done:'Bitirildi mi?',category:'Kategori',feeling:'His',creator:'Creator / showrunner',network:'Network',format:'Format',medium:'Medium',reasonFound:'Nasıl keşfettim',sourceWork:'Kaynak eser',sourceAuthor:'Kaynak yazar'};
 /* Navbar'da "Ana sayfa" YOK: site basligi zaten ana sayfaya gidiyor.
    Bu yuzden NAV icinde 'home' anahtari kalmadi. hrefForView()'in 'home'
    dalini (view==='home' ? '/' : ...) SILMEDIK: go('home') ile rota uretimi
@@ -1055,7 +1058,7 @@ function filterPage(route){
   const type=route.type,value=findFilterValue(type,route.field,route.valueSlug);
   if(!value){notFound(route.valueSlug);return}
   const list=sortItems(D[type].filter(item=>fieldMatches(item,route.field,value)),state.sort);
-  const title=route.field==='reason'&&type==='books'?'Nasıl keşfettim / neden okudum':route.field==='genre'&&type==='films'?'Tür (Letterboxd)':(FILTER_TITLES[route.field]||route.field);
+  const title=route.field==='reason'&&type==='books'?'Nasıl keşfettim / neden okudum':route.field==='genre'&&type==='films'?'Tür (Letterboxd)':route.field==='genre'&&type==='books'?'Ana Tür':route.field==='reasonFound'&&type==='books'?'Keşif Kaynağım':(FILTER_TITLES[route.field]||route.field);
   document.title=`${title}: ${value} — versucher`;
   const cfg=cfgOf(type),view=viewKey(type);
   main.innerHTML=`<a class="back" href="${esc(hrefFor('/'+view))}" data-route="/${view}">← ${cfg.label} listesine dön</a><h1 style="margin-top:1rem">${esc(title)}: ${esc(value)}</h1><p class="sub">${list.length.toLocaleString('tr-TR')} ${cfg.unit}</p><div class="grid" style="margin-top:1.4rem">${list.length?list.map(poster).join(''):'<p class="empty">Bu değerle eşleşen kayıt yok.</p>'}</div>`;
@@ -1666,46 +1669,50 @@ function detailNavArrows(item){
   };
   return arrow(prev,'prev','Önceki')+arrow(next,'next','Sonraki');
 }
-/** Orijinal ve Türkiye yayın yılı aynıysa tek satırda "Yayın tarihi" gösterilir.
- *  199 kitaptan 77'sinde aynı; geri kalanında iki ayrı satır durur. Yılı
- *  okunamayanlar ("basılmadı", "bilinmiyor") aynı sayılmaz. */
+/** Orijinal ve Türçe ilk basım yılı aynıysa tek satırda
+ *  "Yayın tarihi" gösterilir. 199 kitaptan 77'sinde aynı;
+ *  geri kalanında iki ayrı satır durur. Yılı okunamayanlar
+ *  ("basılmadı", "bilinmiyor") aynı sayılmaz. */
 function publishDateRows(item){
   const yearOf=value=>((String(value??'').match(/\d{4}/)||[])[0]||'');
   const original=yearOf(item.year),turkish=yearOf(item.turkishPublishDate);
   if(original&&original===turkish)return [row('Yayın tarihi',item.year)];
-  return [row('Orijinal yayın tarihi',item.year),row('Türkiye yayın tarihi',item.turkishPublishDate)];
+  return [row('Orijinal Basım Yılı',item.year),row('Türçe İlk Basım Yılı',item.turkishPublishDate)];
 }
 function detailPage(item){
   let sections=[];let extra='';
   if(item.sec==='books'){
+    /* 05.10.2026 v1.39: satir etiketleri Sheet'teki yeni
+       sutun adlarla ayni (v1.38'de sutunlar yeniden adlandi;
+       bu sefer sitedeki ifadeler de ona uyarlandi). */
     sections=[
       detailSection('Kitap',[
         /* Orijinal ad, sitede gosterilen adla ayni degilse gosterilir. */
-        originalTitleDiffers(item)?row('Orijinal adı',item.originalTitle):null,
-        chipRow('Yazar',item,'author'),
+        originalTitleDiffers(item)?row('Orijinal Adı',item.originalTitle):null,
+        chipRow('Yazar Adı',item,'author'),
 
         chipRow('Çevirmen',item,'translator'),
         chipRow('Yayınevi',item,'publisher'),
-        chipRow('Kurgu mu?',item,'fiction'),
-        chipRow('Tür',item,'genre'),
-        chipRow('Alt tür',item,'subgenre'),
-        chipRow('Yazıldığı dil',item,'writtenLanguage'),
-        row('Baş karakter',item.character),
+        chipRow('Eser Türü',item,'fiction'),
+        chipRow('Ana Tür',item,'genre'),
+        chipRow('Alt Tür',item,'subgenre'),
+        chipRow('Orijinal Dili',item,'writtenLanguage'),
+        row('Protagonist',item.character),
         ...publishDateRows(item),
-        row('Sayfa sayısı',item.pages)
+        row('Sayfa Sayısı',item.pages)
       ]),
       detailSection('Okuma bilgileri',[
-        chipRow('İlk erişim / edinim şekli',item,'acquisition'),
-        chipRow('İlk kez okuduğum şehir',item,'city'),
-        chipRow('Okuduğum medium',item,'formats'),
+        chipRow('Erişim Şeklim',item,'acquisition'),
+        chipRow('Okuduğum Şehir',item,'city'),
+        chipRow('Okuduğum Format',item,'formats'),
         /* row() bos degerde null doner; doluysa gosterilir. */
-        row('Nasıl keşfettim',item.reasonFound),
-        row('Neden okudum',item.reasonWhy),
-                row('İlk okuduğum dönem',item.firstReadLabel||item.firstReadDate),
-        row('Kaç kez okudum?',item.readCountRaw),
-        row('Tekrar okur muyum',item.reread),
-        row('Kitap bende var mı?',item.owned),
-        row('Okuduğum dil',item.readLanguage)
+        row('Keşif Kaynağım',item.reasonFound),
+        row('Okuma Nedenim',item.reasonWhy),
+                row('Okuduğum Yıl',item.firstReadLabel||item.firstReadDate),
+        row('Kaç Kez Okudum',item.readCountRaw),
+        row('Tekrar Okur muyum',item.reread),
+        row('Kitap Bende Var mı',item.owned),
+        row('Okuduğum Dil',item.readLanguage)
       ])
     ];
   }else if(item.sec==='films'){
