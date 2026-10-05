@@ -2441,3 +2441,39 @@ tıklandığında açılan /kisi/<slug> listesinin aynısı sonuç gelsin.
 Veri dosyaları (5 JSON), sitemap.xml, robots.txt, workflow, 404 üretimi,
 kisi sayfası mantığı, filtreler, tasarım — v1.29 ile aynı.
 
+
+## v1.31 değişiklikleri
+
+### 1) Arama sonuçlarına kategori filtresi
+
+İstek: genel aramada ("michael" gibi) film, dizi, kitap ve playlist sonuçları
+alt alta diziliyordu. Artık sonuçların solunda bir filtre menüsü var: terimin
+geçtiği kategoriler kayıt sayılarıyla listelenir, en çok sonuç veren kategori
+en üstte durur. Kategoriye tıklamak sonuçları o kategoriyle sınırlar; aynı
+kategoriye ikinci tık filtreyi kaldırır. Tek kategoride sonuç varsa menü
+gösterilmez. Dar ekranda (700 px altı) menü üstte yatay şeride dönüşür.
+
+### 2) Oyuncu çipleri: yalnız ad, imleç üzerine gelince rol
+
+Sorun: Sheets'teki "Oyuncular" sütunu JSON dizisine
+(`[{"name": "...", "role": "..."}]`) geçmişti; build-data.mjs hücreyi virgülden
+böldüğü için data/films.json ve data/series.json'a kırık metin parçaları
+girmiş, detay sayfalarında ham JSON görünmüştü.
+
+Yapılan değişiklikler:
+
+- `scripts/build-data.mjs`: yeni `parseCast()` — hücre `[` ile başlıyorsa
+  JSON olarak çözümlenir; `cast` yine düz ad dizisi, roller ayrıca
+  `castRoles` (ad → rol) haritasında tutulur. Eski düz-liste biçimi geriye
+  dönük olarak desteklenir.
+- `data/films.json`, `data/series.json`: kırık parçalar birleştirilip JSON
+  olarak çözümlendi (492 film, 130 dizi onarıldı; 15 kayıt zaten temizdi).
+- `index.html`: `peopleRow` oyuncu satırında çiplere rol `title` baloncuğu
+  eklendi; adlar tıklanabilir kişi linki olmaya devam eder, yalnızca ad
+  görünür, imleç üzerine gelince rol görünür. Senaryo/Hikaye satırları
+  rolsuz kalır.
+
+### Dokunulmayanlar
+
+Kişi sayfası mantığı, arama dizini, sıralama, tür/yıl filtreleri, sitemap ve
+robots üretimi, workflow akışı — v1.30 ile aynı.
