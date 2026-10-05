@@ -2596,3 +2596,24 @@ Kapağı olmayan (görseli eksik) kayıtlarda kutu açılmaz.
 
 Detay yerleşimi, sabit başlık, kaynak eser/yazar çipleri, mobil oyuncu
 düzeni, veri dosyaları — v1.35 ile aynı.
+## v1.37 değişiklikleri
+
+### 1) Işık kutusu mobilde kapatıldı
+
+Mobilde kapak zaten büyük göründüğü için detay sayfasındaki görsele tıklama
+artık ışık kutusu açmaz; büyüteç imleci de yalnızca geniş ekranda (701 px
+üstü) gösterilir. Masaüstü davranışı v1.36 ile aynı.
+
+### 2) Mobildeki "← Dizilere dön" linki düzeltildi
+
+Sorun: link `.detail-page` ızgarasının çocuğu olduğu için tam genişlikte
+blok oluyordu; metin ~100 px görünürken satır ~314 px görünmez tıklama
+alanı kaplıyordu ("10x yer kaplayıp 0.5x görünme"). Artık link kendi metni
+kadar yer kaplıyor (fit-content) ve başlıkla arasına düzgün boşluk kondu.
+Yalnızca mobil (700 px altı) etkilenir; filtre/tür sayfalarındaki "dön"
+linkleri ve masaüstü düzeni aynı.
+
+### Dokunulmayanlar
+
+Işık kutusu masaüstü davranışı, detay yerleşimi, veri dosyaları — v1.36
+ile aynı.
