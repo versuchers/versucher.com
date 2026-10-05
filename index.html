@@ -429,7 +429,7 @@ const CFG={
   lists:{label:'Playlistler',unit:'playlist',fav:'Favori playlistler',dateLabel:''}
 };
 const ROUTE_PREFIX={books:'kitap',films:'film',series:'dizi',playlists:'playlist'};
-const FILTER_TITLES={author:'Yazar',genre:'Tür',subgenre:'Alt tür',authorOrigin:'Yazar köken',fiction:'Kurgu mu?',city:'İlk kez okuduğum şehir',acquisition:'İlk erişim / edinim şekli',formats:'Okuduğum medium',translator:'Çevirmen',publisher:'Yayınevi',platform:'İlk kez hangi platformda',writtenLanguage:'Yazıldığı dil',language:'Dil',director:'Yönetmen',firstCity:'İlk kez izlenen şehir',country:'Yapım ülkesi',directorOrigin:'Yönetmen nereli',reason:'Nasıl keşfettim / neden izledim',done:'Bitirildi mi?',category:'Kategori',feeling:'His',creator:'Creator / showrunner',network:'Network',format:'Format',medium:'Medium',reasonFound:'Nasıl keşfettim'};
+const FILTER_TITLES={author:'Yazar',genre:'Tür',subgenre:'Alt tür',authorOrigin:'Yazar köken',fiction:'Kurgu mu?',city:'İlk kez okuduğum şehir',acquisition:'İlk erişim / edinim şekli',formats:'Okuduğum medium',translator:'Çevirmen',publisher:'Yayınevi',platform:'İlk kez hangi platformda',writtenLanguage:'Yazıldığı dil',language:'Dil',director:'Yönetmen',firstCity:'İlk kez izlenen şehir',country:'Yapım ülkesi',directorOrigin:'Yönetmen nereli',reason:'Nasıl keşfettim / neden izledim',done:'Bitirildi mi?',category:'Kategori',feeling:'His',creator:'Creator / showrunner',network:'Network',format:'Format',medium:'Medium',reasonFound:'Nasıl keşfettim',sourceWork:'Kaynak eser',sourceAuthor:'Kaynak yazar'};
 /* Navbar'da "Ana sayfa" YOK: site basligi zaten ana sayfaya gidiyor.
    Bu yuzden NAV icinde 'home' anahtari kalmadi. hrefForView()'in 'home'
    dalini (view==='home' ? '/' : ...) SILMEDIK: go('home') ile rota uretimi
@@ -630,6 +630,8 @@ function hydrate(item){
     item.reasonFound,item.reasonWhy,
     item.watched,item.seriesOrder,item.creator,item.network,item.format,item.statusRaw,item.category,item.feeling,
     item.adaptation,
+    /* 05.10.2026 v1.35: kaynak eser/yazar adlari da aramada bulunsun. */
+    item.sourceWork,item.sourceAuthor,
     item.countries.join(' '),item.genres.join(' '),item.subgenres.join(' '),
     /* 03.10.2026 v1.30: kisi linkleri (Oyuncular/Senaryo/Hikaye) aranabilir;
        /kisi/<slug> sayfasinin gosterdigi ogeleri genel arama da bulsun. */
@@ -1279,6 +1281,9 @@ function fieldValues(item,field){
     if(field==='cast')return item.cast;
     if(field==='screenplay')return item.screenplay;
     if(field==='story')return item.story;
+    /* 05.10.2026 v1.35: kaynak eser/yazar cipleri (tiklanabilir filtre). */
+    if(field==='sourceWork')return splitList(item.sourceWork);
+    if(field==='sourceAuthor')return splitList(item.sourceAuthor);
     if(field==='director')return splitMulti(item.directorRaw);
     if(field==='firstCity')return splitList(item.firstCity);
     if(field==='creator')return splitList(item.creator);
@@ -1293,6 +1298,9 @@ function fieldValues(item,field){
     if(field==='creator')return splitList(item.creator);
     if(field==='country')return item.countries;
     if(field==='cast')return item.cast;
+    /* 05.10.2026 v1.35: kaynak eser/yazar cipleri (tiklanabilir filtre). */
+    if(field==='sourceWork')return splitList(item.sourceWork);
+    if(field==='sourceAuthor')return splitList(item.sourceAuthor);
     /* 03.10.2026: dizi detay sayfasinda bu alanlar da tiklanabilir oldu;
        filtre adresleri (/dizi/filtre/<field>/<slug>) buradan uretilir. */
     if(field==='network')return missing(item.network)?[]:[clean(item.network)];
@@ -1691,6 +1699,9 @@ function detailPage(item){
         originalTitleDiffers(item)?row('Orijinal film adı',item.originalTitle):null,
         chipRow('Tür',item,'genre'),
         row('Uyarlama kaynağı',item.adaptation),
+        /* 05.10.2026 v1.35: kaynak eser/yazar, tiklanabilir filtre cipi. */
+        chipRow('Kaynak eser',item,'sourceWork'),
+        chipRow('Kaynak yazar',item,'sourceAuthor'),
         row('Yapım yılı',item.year),
         chipRow('Yapım ülkesi',item,'country'),
         chipRow('Dil',item,'language'),
@@ -1717,6 +1728,9 @@ function detailPage(item){
         valueKey(item.originalTitle)!==valueKey(item.title)?row('Orijinal adı',item.originalTitle):null,
         chipRow('Tür',item,'genre'),
         row('Uyarlama kaynağı',item.adaptation),
+        /* 05.10.2026 v1.35: kaynak eser/yazar, tiklanabilir filtre cipi. */
+        chipRow('Kaynak eser',item,'sourceWork'),
+        chipRow('Kaynak yazar',item,'sourceAuthor'),
         row('Yapım yılı',item.year),
         chipRow('Yapım ülkesi',item,'country'),
         peopleRow('Oyuncular',item,'cast'),
