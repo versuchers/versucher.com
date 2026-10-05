@@ -2581,3 +2581,18 @@ alır.
 
 Kişi sayfaları, rol baloncuğu, mobil oyuncu düzeni, dış link düğmeleri,
 kategori filtresi — v1.34 ile aynı.
+## v1.36 değişiklikleri
+
+### Kapak/afiş tıklanınca ışık kutusu (lightbox)
+
+Film, dizi ve kitap detay sayfalarında soldaki görsele tıklamak görseli
+ekranın tam ortasında (yatay + dikey) büyütür; arka plan yarı saydam koyu
+olur ve sayfa kaydırması kilitlenir. Görsele ikinci tık, karanlık alana tık
+ya da Esc tuşu kutuyu kapatır ve detay sayfası geri gelir. Kapak üzerinde
+imleç zoom-in olur; prefers-reduced-motion'da geçiş animasyonu kapalıdır.
+Kapağı olmayan (görseli eksik) kayıtlarda kutu açılmaz.
+
+### Dokunulmayanlar
+
+Detay yerleşimi, sabit başlık, kaynak eser/yazar çipleri, mobil oyuncu
+düzeni, veri dosyaları — v1.35 ile aynı.
