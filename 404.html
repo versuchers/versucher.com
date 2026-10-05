@@ -141,6 +141,18 @@ p{margin-top:.55rem}
 .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media (max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:700px){.grid,.grid-3{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem .7rem}}
+
+/* 06.10.2026 v1.41: Anasayfa icin daha genis nefes alanli izgara.
+   .home-grid sinifi anasayfa bolumlerine (favRow, recentItems, playlistFavRow)
+   verilir; liste sayfalarinda (.grid) eski dar aralik korunur. */
+.home-grid{gap:2.2rem 1.6rem}
+@media (max-width:900px){.home-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:1.8rem 1.3rem}}
+@media (max-width:700px){.home-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem .9rem}}
+
+/* Anasayfa kartlari biraz daha kucuk ve hafif gorunsun. */
+.home-grid .cover{aspect-ratio:2/3;max-width:92%;margin:0 auto}
+.home-grid .poster-card{contain-intrinsic-size:auto 280px}
+
 .niche{background:var(--well);border-radius:12px;padding:1.2rem 1.1rem;overflow:hidden;box-shadow:inset 0 10px 18px -6px var(--sh1),inset 0 -1px 0 var(--hi)}
 
 /* Buyuk kartin yazilari da buyusun; afis yokken gosterilen baslik dahil. */
@@ -831,7 +843,7 @@ function favoriteItems(kind){
 }
 function favRow(kind){
   const list=favoriteItems(kind);
-  return `<div class="sh"><h2>${CFG[kind].fav}</h2><a class="link" href="${esc(hrefFor('/'+kind))}" data-route="/${kind}">Tümünü gör</a></div><div class="niche"><div class="grid">${list.length?list.map(poster).join(''):'<p class="empty">Henüz favori işaretlenmedi.</p>'}</div></div>`;
+  return `<div class="sh"><h2>${CFG[kind].fav}</h2><a class="link" href="${esc(hrefFor('/'+kind))}" data-route="/${kind}">Tümünü gör</a></div><div class="niche"><div class="grid home-grid">${list.length?list.map(poster).join(''):'<p class="empty">Henüz favori işaretlenmedi.</p>'}</div></div>`;
 }
 /** Anasayfa playlist satiri: "main" kategorisinden elle secilen 12 kayit, sirayla. */
 function homePlaylistItems(){
@@ -845,7 +857,7 @@ function homePlaylistItems(){
 }
 function playlistFavRow(){
   const list=homePlaylistItems();
-  return `<div class="sh"><h2>${CFG.lists.fav}</h2><a class="link" href="${esc(hrefFor('/lists'))}" data-route="/lists">Tümünü gör</a></div><div class="niche"><div class="grid grid-3">${list.length?list.map(poster).join(''):'<p class="empty">Henüz seçilmedi.</p>'}</div></div>`;
+  return `<div class="sh"><h2>${CFG.lists.fav}</h2><a class="link" href="${esc(hrefFor('/lists'))}" data-route="/lists">Tümünü gör</a></div><div class="niche"><div class="grid grid-3 home-grid">${list.length?list.map(poster).join(''):'<p class="empty">Henüz seçilmedi.</p>'}</div></div>`;
 }
 /* ------------------------------------------------------------------ *
  * Anasayfadaki "Son okunanlar" / "Son izlenenler" satirlari
@@ -874,7 +886,7 @@ function recentItems(sec,sortKey,labelKey,precisionKey){
  *  bölüm başlığı / kart izgarası; yeni bir tasarım değil. */
 function recentRow(title,view,sec,sortKey,labelKey,precisionKey,emptyText){
   const list=recentItems(sec,sortKey,labelKey,precisionKey);
-  return `<div class="sh"><h2>${esc(title)}</h2><a class="link" href="${esc(hrefFor('/'+view))}" data-route="/${view}">Tümünü gör</a></div><div class="niche"><div class="grid">${list.length?list.map(item=>poster(item,item[labelKey])).join(''):`<p class="empty">${esc(emptyText)}</p>`}</div></div>`;
+  return `<div class="sh"><h2>${esc(title)}</h2><a class="link" href="${esc(hrefFor('/'+view))}" data-route="/${view}">Tümünü gör</a></div><div class="niche"><div class="grid home-grid">${list.length?list.map(item=>poster(item,item[labelKey])).join(''):`<p class="empty">${esc(emptyText)}</p>`}</div></div>`;
 }
 /** Anasayfanin yeni ana icerigi: once okunanlar, sonra izlenenler. */
 function recentRows(){
