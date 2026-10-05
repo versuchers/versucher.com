@@ -2650,3 +2650,39 @@ aliasıyla eşleşmediği için kitaplarda `yazar kökeni` alanı
 Etkilenen dosya: `scripts/build-data.mjs` (site JS'i,
 index.html/404.html ve veri şeması aynı — alan adları
 değişmediği için site tarafında değişiklik yok).
+## v1.39 değişiklikleri
+
+### Kitap detay sayfası ifadeleri yeni sütun adlarıyla
+
+v1.38'de Sheet sütunları yeniden adlandırıldı; bu sürümde
+site üzerindeki ifadeler de buna uyarlandı (film/dizi
+sütunları değişmediği için onların etiketleri ayni):
+
+Kitap bölümü: `Orijinal adı` → **Orijinal Adı**, `Yazar`
+→ **Yazar Adı**, `Kurgu mu?` → **Eser Türü**, `Tür` →
+**Ana Tür**, `Alt tür` → **Alt Tür**, `Yazıldığı dil` →
+**Orijinal Dili**, `Baş karakter` → **Protagonist**,
+`Orijinal yayın tarihi` → **Orijinal Basım Yılı**,
+`Türkiye yayın tarihi` → **Türçe İlk Basım Yılı**,
+`Sayfa sayısı` → **Sayfa Sayısı**.
+
+Okuma bilgileri bölümü: `İlk erişim / edinim şekli` →
+**Erişim Şeklim**, `İlk kez okuduğum şehir` → **Okuduğum
+Şehir**, `Okuduğum medium` → **Okuduğum Format**,
+`Nasıl keşfettim` → **Keşif Kaynağım**, `Neden okudum`
+→ **Okuma Nedenim**, `İlk okuduğum dönem` → **Okuduğum
+Yıl**, `Kaç kez okudum?` → **Kaç Kez Okudum**, `Tekrar
+okur muyum` → **Tekrar Okur muyum**, `Kitap bende var
+mı?` → **Kitap Bende Var mı**, `Okuduğum dil` →
+**Okuduğum Dil**.
+
+Kitap filtre sayfalarındaki başlıklar da aynı yeni
+isimleri taşıyor (çiplere tıklayınca gidilen sayfalar:
+"Ana Tür: Roman", "Eser Türü: Kurgu" vb.); ortak alanlar
+(Tür, Yayınevi, Çevirmen...) film/diziyle aynı kaldığı
+için değişmedi.
+
+### Dokunulmayanlar
+
+Film ve dizi detay sayfaları, veri dosyaları, veri
+üretimi (v1.38 build-data.mjs) — ayni.
