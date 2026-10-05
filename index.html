@@ -292,11 +292,12 @@ p{margin-top:.55rem}
 .tag-chip.ml:hover{background:var(--accent);color:var(--text)}
 .link-chip{display:inline;font-family:var(--ui);font-size:.92rem;line-height:1.6;color:var(--link);overflow-wrap:anywhere}
 .link-chip:hover{color:var(--link-hi)}
-.ext-links{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.8rem;justify-content:center}
-.ext-link{font-family:var(--ui);font-size:.78rem;line-height:1.4;color:var(--link);white-space:nowrap}
-.ext-link:hover{color:var(--link-hi)}
-.ext-link:hover{border-bottom-style:solid}
-.ext-link::after{content:" ↗";font-size:.8em;opacity:.65}
+.ext-links{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.8rem;justify-content:center}
+/* 05.10.2026 v1.34: dis linkler (tmdb/tvmaze/imdb/goodreads/letterboxd)
+   sade metin yerine site diline uyan dugme-cip gorunumu aldi. */
+.ext-link{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--ui);font-size:.78rem;line-height:1.3;color:var(--link);background:var(--raise);border:1px solid var(--line);border-radius:9px;padding:.28rem .6rem;text-decoration:none;white-space:nowrap;box-shadow:inset 0 1px 0 var(--hi);transition:border-color .15s,color .15s}
+.ext-link:hover{color:var(--link-hi);border-color:var(--link-hi)}
+.ext-link::after{content:"↗";font-size:.85em;opacity:.6}
 /* --- Kisi listeleri (03.10.2026) ---
    .people-rest display:contents ile flex cocugu oluyor; boylece gizli
    isimler "devamını gör"e basilinca AYNI izgarada, araya girerek degil
@@ -361,9 +362,22 @@ kbd{font-family:var(--ui);font-size:.72rem;background:var(--well);border:1px sol
 @media (max-width:700px){.search-body{flex-direction:column;gap:.9rem}.search-filter{position:static;width:100%;flex-direction:row;flex-wrap:wrap;gap:.25rem .4rem}.sf-btn{width:auto}}
 
 /* 05.10.2026 v1.32: oyuncu rol baloncugu OZEL oldu. Native title ~1 sn
-   bekletiyordu; simdi imlec cipin uzerine GELIR GELMEZ acilir. */
+   bekletiyordu; simdi imlec cipin uzerine GELIR GELMEZ acilir.
+   v1.34: baloncuk TEK SATIR — onceki surumde white-space:normal + dar
+   kutu yuzunden "Mart ha Walk er" gibi kirpik kirpik bolunuyordu. */
 .tag-chip.has-role{position:relative}
-.tag-chip.has-role:hover::after{content:attr(data-role);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);max-width:min(320px,80vw);background:var(--raise);color:var(--text);border:1px solid var(--line-ctl);border-radius:8px;padding:.32rem .6rem;font-family:var(--ui);font-size:.78rem;line-height:1.4;white-space:normal;text-align:center;box-shadow:0 8px 24px var(--sh2);z-index:60;pointer-events:none}
+.tag-chip.has-role:hover::after{content:attr(data-role);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);background:var(--raise);color:var(--text);border:1px solid var(--line-ctl);border-radius:8px;padding:.32rem .6rem;font-family:var(--ui);font-size:.78rem;line-height:1.4;white-space:nowrap;box-shadow:0 8px 24px var(--sh2);z-index:60;pointer-events:none}
+
+/* 05.10.2026 v1.34: mobilde imlec YOK, baloncuk acilmaz. Oyuncu cipleri
+   satir satir dizilir; rol, adin altinda soluk renkte kalici olarak yazar. */
+@media (max-width:700px){
+  .cast-chips{flex-direction:column;align-items:stretch;gap:.45rem}
+  .cast-chips .tag-chip{width:fit-content;max-width:100%}
+  /* .tag-chip inline-flex oldugundan ::after flex cocugu sayilir; rolun
+     adin ALTINA dusmesi icin cip dikey flex olur. */
+  .cast-chips .tag-chip.has-role{flex-direction:column;align-items:flex-start}
+  .cast-chips .tag-chip.has-role::after{content:attr(data-role);display:block;position:static;transform:none;border:0;background:none;box-shadow:none;padding:0;margin-top:.14rem;font-family:var(--ui);font-size:.72rem;line-height:1.35;color:var(--muted);white-space:normal}
+}
 .detail-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.4rem;margin-top:2rem}
 .detail-section{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem 1.1rem;box-shadow:inset 0 1px 0 var(--hi)}
 .detail-section h2{font-size:1.25rem;border-bottom:1px solid var(--line);padding-bottom:.45rem;margin-bottom:.45rem}
@@ -1436,9 +1450,12 @@ function peopleRow(label,item,field,limit){
   const chip=name=>personChip(name,roles?roles[name]:'');
   const cap=limit||PEOPLE_PREVIEW;
   const head=names.slice(0,cap).map(chip).join('');
-  if(names.length<=cap)return [label,`<div class="detail-value-chips">${head}</div>`];
+  /* 05.10.2026 v1.34: cast-chips sinifi mobilde satir-satir dizilimi ve
+     rol alt-yazisini tetikler; diger kisi alanlari etkilenmez. */
+  const cls=field==='cast'?' cast-chips':'';
+  if(names.length<=cap)return [label,`<div class="detail-value-chips${cls}">${head}</div>`];
   const rest=names.slice(cap).map(chip).join('');
-  return [label,`<div class="detail-value-chips people-block">${head}<span class="people-rest" hidden>${rest}</span><button type="button" class="people-more" data-people-more="1">devamını gör</button></div>`];
+  return [label,`<div class="detail-value-chips people-block${cls}">${head}<span class="people-rest" hidden>${rest}</span><button type="button" class="people-more" data-people-more="1">devamını gör</button></div>`];
 }
 /** Kişinin oynadığı / yönettiği / yazdığı tüm işler (film + dizi). */
 const PERSON_ROLE={
