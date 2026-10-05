@@ -2477,3 +2477,38 @@ Yapılan değişiklikler:
 
 Kişi sayfası mantığı, arama dizini, sıralama, tür/yıl filtreleri, sitemap ve
 robots üretimi, workflow akışı — v1.30 ile aynı.
+## v1.32 değişiklikleri
+
+### 1) Rol baloncuğu artık beklemeden açılıyor
+
+v1.31'de oyuncu rolü native `title` ile gösteriliyordu; tarayıcı baloncuğu
+~1 saniye bekletiyordu. Artık rol `data-role` özniteliği + CSS baloncukla
+gösteriliyor: imleç çipin üzerine gelir gelmez açılır.
+
+### 2) Arama sonuçlarında afiş altı görev etiketi
+
+"eli roth" gibi kişi aramalarında sonuç afişlerinin altında o kişinin işteki
+görevi yazar: "Yönetmen olarak", "Oyuncu ve senaryo olarak" gibi. Filmlerde
+cast + yönetmen + senaryo + hikaye, dizilerde cast alanına bakılır (kişi
+sayfalarıyla aynı alan seçimi). Terim kişi adı değilse etiket çıkmaz.
+
+### 3) "En çok 10 oyuncu" kuralı araştırması + çoklu roller birleştirildi
+
+İstek: 10'dan fazla oyuncu göstermeme kuralı kaldırılsın.
+
+Bulgu: site kodunda (build-data.mjs / index.html) böyle bir sınır YOK;
+parseCast hücredeki tüm oyuncuları alır. Sınır Sheet verisinde: film
+sheet'inin Oyuncular sütunu film başına en çok 10 KİŞİ içeriyor (Cloud Atlas
+hücresindeki 30 kayıt, 10 kişinin ayrı ayrı rolleri). Dizi sheet'inde sınır
+yok (139 kişilik kayıt var). Film tarafındaki 10 sınırını kaldırmak Sheet'i
+dolduran otomasyonun işi; site hücreye ne girilirse tamamını gösterir.
+
+Veri iyileştirmesi: aynı oyuncunun birden çok rolü (Cloud Atlas'ta Tom
+Hanks'in rolleri gibi) castRoles'ta birleştirildi: "Dr. Henry Goose, Hotel
+Manager, Isaac Sachs". build-data.mjs parseCast aynı birleştirmeyi yapar.
+164 film + 67 dizi oyuncusunda çoklu rol birleşti.
+
+### Dokunulmayanlar
+
+Kategori filtresi (v1.31), kişi sayfaları, "devamını gör", sıralama ve
+filtreler, sitemap/robots üretimi, workflow — v1.31 ile aynı.
