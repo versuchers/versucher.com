@@ -2529,3 +2529,28 @@ durumda görünmez. Tek CSS satırı; JS ve yerleşim değişmedi.
 
 Sabitlenme mantığı (STICKY_TOP=16), kapak sütunu, nav okları, kategori
 filtresi, rol baloncuğu, görev etiketleri, veri dosyaları — v1.32 ile aynı.
+## v1.34 değişiklikleri
+
+### 1) Rol baloncuğu tek satır
+
+Baloncuk `white-space:normal` ve dar kutu yüzünden rol adını kelime ortasından
+bölüyordu ("Mart ha Walk er"). Artık `white-space:nowrap`: rol adı tek
+satırda gösterilir.
+
+### 2) Mobilde oyuncular satır satır + rol alt-yazısı
+
+Mobilde imleç olmadığı için baloncuk açılmaz. Artık 700 px altında Oyuncular
+satırındaki çipler (`.cast-chips`) alt alta dizilir ve rol, oyuncu adının
+altında soluk renkte kalıcı olarak yazar. "devamını gör" ile açılan gizli
+çipler de aynı düzene girer. Masaüstü görünüm değişmedi.
+
+### 3) Dış linkler düğme görünümü aldı
+
+tmdb / tvmaze / imdb (dizi), letterboxd / tmdb / imdb (film) ve goodreads
+(kitap) linkleri sade metin yerine site diline uyan çip-düğme görünümüne
+kavuştu: zemin + çerçeve + yuvarlak köşe, hover'da vurgu rengi.
+
+### Dokunulmayanlar
+
+Kategori filtresi, görev etiketleri, sabit başlık gölgesi (v1.33), veri
+dosyaları, build betikleri — v1.33 ile aynı.
