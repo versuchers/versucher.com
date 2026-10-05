@@ -2554,3 +2554,30 @@ kavuştu: zemin + çerçeve + yuvarlak köşe, hover'da vurgu rengi.
 
 Kategori filtresi, görev etiketleri, sabit başlık gölgesi (v1.33), veri
 dosyaları, build betikleri — v1.33 ile aynı.
+## v1.35 değişiklikleri
+
+### Kaynak eser + kaynak yazar alanları
+
+Film ve dizi Sheet'lerine gelen "Kaynak Eser" ve "Kaynak Yazar" sütunları
+detay sayfalarına birer satır olarak eklendi. İkisi de tıklanabilir filtre
+çipidir: çipe tıklamak o değerin kaynak olduğu kayıtları listeler
+(/film/filtre/sourceAuthor/..., /dizi/filtre/sourceWork/...). Birden çok
+yazar virgülle ayrılır, her biri kendi filtresine gider. İki alan da arama
+dizinine eklendi; kaynak yazar/eser adını aramak kaynak olduğu film/dizileri
+sonuçlarda getirir.
+
+- `scripts/build-data.mjs`: iki sütun iki tür için eşlendi (sourceAuthor /
+  sourceWork).
+- `index.html`: fieldValues + FILTER_TITLES + detay satırları + searchText.
+- `data/films.json`: 494 kayıt (120 kaynak yazar, 75 kaynak eser dolu).
+- `data/series.json`: 143 kayıt (22 kaynak yazar, 25 kaynak eser dolu; 5
+  kayıt Sheet adıyla eşleşmedi, saatlik üretimde tamamlanır).
+
+Not: Sheet'teki "Uyarlama Kaynağı" sütunu kaldırıldığı için bir sonraki veri
+üretiminde "Uyarlama kaynağı" satırı boşalıp gizlenecek; yerini bu iki satır
+alır.
+
+### Dokunulmayanlar
+
+Kişi sayfaları, rol baloncuğu, mobil oyuncu düzeni, dış link düğmeleri,
+kategori filtresi — v1.34 ile aynı.
