@@ -2512,3 +2512,20 @@ Manager, Isaac Sachs". build-data.mjs parseCast aynı birleştirmeyi yapar.
 
 Kategori filtresi (v1.31), kişi sayfaları, "devamını gör", sıralama ve
 filtreler, sitemap/robots üretimi, workflow — v1.31 ile aynı.
+## v1.33 değişiklikleri
+
+### Detay sayfasında sabit başlığın üstündeki taşma kapatıldı
+
+Sorun: başlık kaydırmada 16 px aşağıda sabitleniyor (STICKY_TOP); bu,
+başlığın üstünde 16 px'lik bir şerit bırakıyor ve kayan sayfa içeriği o
+şeritte görünüyordu (kaybolmuş gibi duran yarım satırlar).
+
+Çözüm: `.detail-heading`'e yukarı uzanan panel renkli bir gölge
+(`box-shadow: 0 -16px 0 var(--panel)`) eklendi. Şerit artık başlığın zemini
+ile kapalı; gölge `main` zeminiyle aynı renkte olduğundan sabitlenmemiş
+durumda görünmez. Tek CSS satırı; JS ve yerleşim değişmedi.
+
+### Dokunulmayanlar
+
+Sabitlenme mantığı (STICKY_TOP=16), kapak sütunu, nav okları, kategori
+filtresi, rol baloncuğu, görev etiketleri, veri dosyaları — v1.32 ile aynı.
