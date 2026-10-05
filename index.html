@@ -355,6 +355,11 @@ kbd{font-family:var(--ui);font-size:.72rem;background:var(--well);border:1px sol
 #search-results{flex:1;min-width:0}
 #search-results .tag-result-section:first-child{margin-top:0}
 @media (max-width:700px){.search-body{flex-direction:column;gap:.9rem}.search-filter{position:static;width:100%;flex-direction:row;flex-wrap:wrap;gap:.25rem .4rem}.sf-btn{width:auto}}
+
+/* 05.10.2026 v1.32: oyuncu rol baloncugu OZEL oldu. Native title ~1 sn
+   bekletiyordu; simdi imlec cipin uzerine GELIR GELMEZ acilir. */
+.tag-chip.has-role{position:relative}
+.tag-chip.has-role:hover::after{content:attr(data-role);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%);max-width:min(320px,80vw);background:var(--raise);color:var(--text);border:1px solid var(--line-ctl);border-radius:8px;padding:.32rem .6rem;font-family:var(--ui);font-size:.78rem;line-height:1.4;white-space:normal;text-align:center;box-shadow:0 8px 24px var(--sh2);z-index:60;pointer-events:none}
 .detail-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.4rem;margin-top:2rem}
 .detail-section{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem 1.1rem;box-shadow:inset 0 1px 0 var(--hi)}
 .detail-section h2{font-size:1.25rem;border-bottom:1px solid var(--line);padding-bottom:.45rem;margin-bottom:.45rem}
@@ -1073,9 +1078,26 @@ function searchSections(q,only){
     if(!g.list.length)return '';
     if(active&&g.type!==active)return '';
     total+=g.list.length;
-    return `<section class="tag-result-section"><div class="sh"><h2>${g.label}</h2><span class="sub">${g.list.length.toLocaleString('tr-TR')} kayıt</span></div><div class="grid">${g.list.map(poster).join('')}</div></section>`;
+    return `<section class="tag-result-section"><div class="sh"><h2>${g.label}</h2><span class="sub">${g.list.length.toLocaleString('tr-TR')} kayıt</span></div><div class="grid">${g.list.map(item=>poster(item,'',searchRoleLabel(item,needle))).join('')}</div></section>`;
   }).join('');
   return {html,total,groups,active};
+}
+/* 05.10.2026 v1.32: arama terimi bir kisi adiyla eslesiyorsa, sonuc afisinin
+   altina o kisinin o isteki gorevi yazilir: "Yonetmen olarak", "Oyuncu ve
+   senaryo olarak" gibi. Terim kisi adi degilse etiket cikmaz. Dizide kisi
+   alani yalniz cast; filmde cast + yonetmen + senaryo + hikaye (kisi
+   sayfalarinin alan secimiyle ayni). */
+const SEARCH_ROLE_FIELDS={films:['cast','directors','screenplay','story'],series:['cast']};
+function searchRoleLabel(item,needle){
+  const fields=SEARCH_ROLE_FIELDS[item.sec];
+  if(!fields)return '';
+  const roles=[];
+  for(const f of fields){
+    if((item[f]||[]).some(name=>foldText(name).includes(needle)))roles.push(PERSON_ROLE[f].toLocaleLowerCase('tr-TR'));
+  }
+  if(!roles.length)return '';
+  const s=roles.length===1?roles[0]:roles.slice(0,-1).join(', ')+' ve '+roles[roles.length-1];
+  return s.charAt(0).toLocaleUpperCase('tr-TR')+s.slice(1)+' olarak';
 }
 /* Sol filtre menusu: terimin gectigi kategoriler, coktan aza sirali.
    Tek kategori varsa filtre gostermenin anlami yok. */
@@ -1387,11 +1409,13 @@ function personPath(name){
 }
 function personChip(name,tip){
   const path=personPath(name);
-  /* 05.10.2026 v1.31: oyuncu ciplerinde rol adi, imlec cipin uzerine
-     gelince title baloncuguyla gorunur. tip yoksa v1.30 davranisi ayni. */
-  const t=tip?` title="${esc(tip)}"`:'';
-  if(!path)return `<span class="tag-chip is-plain"${t||' title="Bu ad için adres üretilemiyor"'}>${esc(name)}</span>`;
-  return `<a class="tag-chip" href="${esc(hrefFor(path))}" data-route="${esc(path)}"${t}>${esc(name)}</a>`;
+  /* 05.10.2026 v1.32: rol artik native title'da degil, data-role ozniteligi +
+     CSS baloncukla gosteriliyor; boylece ~1 sn'lik bekleme kalkti, imlec
+     gelir gelmez aciliyor. tip yoksa v1.30 davranisi ayni. */
+  const r=tip?` data-role="${esc(tip)}"`:'';
+  const c=tip?' has-role':'';
+  if(!path)return `<span class="tag-chip is-plain${c}"${r}${tip?'':' title="Bu ad için adres üretilemiyor"'}>${esc(name)}</span>`;
+  return `<a class="tag-chip${c}" href="${esc(hrefFor(path))}" data-route="${esc(path)}"${r}>${esc(name)}</a>`;
 }
 /** "Devamını gör" butonu: 5'te fazla kisi varsa ilk 5i goster, gerisini gizle.
  *  Sheet'te film basina en cok 10 oyuncu var; 494 filmin 487'sinde buton
