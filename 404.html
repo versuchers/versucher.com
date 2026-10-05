@@ -275,7 +275,9 @@ p{margin-top:.55rem}
 /* 05.10.2026 v1.36: kapak tiklaninca isik kutusu. Gorsel ekranin tam
    ortasinda (yatay+dikey) buyur; arka plan koyulur. Kapseye / bosluga
    ikinci tik ya da Esc kapatir. */
-.detail-art-column .cover:has(img){cursor:zoom-in}
+/* 05.10.2026 v1.36b: mobilde isik kutusu YOK — kapak zaten buyuk gorunur;
+   tiklama ve buyutec imleci yalnizca genis ekranda. */
+@media (min-width:701px){.detail-art-column .cover:has(img){cursor:zoom-in}}
 .lightbox{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(12,11,8,.74);opacity:0;transition:opacity .18s ease;cursor:zoom-out}
 .lightbox.is-on{opacity:1}
 .lightbox img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.65)}
@@ -400,7 +402,11 @@ kbd{font-family:var(--ui);font-size:.72rem;background:var(--well);border:1px sol
 
 .detail-page .detail-subline,.detail-page .detail-score,.detail-page .detail-section,.detail-page .detail-row,.detail-page .detail-row dt,.detail-page .detail-row dd,.detail-page .back,.detail-page .tag-chip,.detail-page .compact-link{font-size:15px}
 .placeholder{background:var(--raise);border:1px dashed var(--line);border-radius:12px;padding:2rem 1.2rem;text-align:center;color:var(--muted);font-family:var(--ui)}
-@media (max-width:700px){.detail-page{grid-template-columns:minmax(0,1fr);row-gap:0}.detail-heading{grid-column:1;padding:0 0 1.25rem;margin:0}.detail-art-column{grid-column:1;position:relative;top:auto;max-width:none;padding:0 0 1.2rem}.detail-content{grid-column:1;border-top:1px solid var(--line);padding:1.2rem 0 0}.detail-content::before{display:none}.detail-heading h1{font-size:2rem}}
+@media (max-width:700px){.detail-page{grid-template-columns:minmax(0,1fr);row-gap:0}.detail-heading{grid-column:1;padding:0 0 1.25rem;margin:0}.detail-art-column{grid-column:1;position:relative;top:auto;max-width:none;padding:0 0 1.2rem}.detail-content{grid-column:1;border-top:1px solid var(--line);padding:1.2rem 0 0}.detail-content::before{display:none}.detail-heading h1{font-size:2rem}
+/* 05.10.2026 v1.37: geri don linki grid'de tam genislik blok oluyordu;
+   metin kucuk, gorunmez tiklama alani buyuk gorunuyordu. Artik kendi
+   metni kadar yer kaplar, baslikla arasinda duzgun bosluk var. */
+.detail-page>.back{justify-self:start;width:fit-content;margin:0 0 .95rem}}
 @media (max-width:650px){.detail-row{grid-template-columns:1fr;gap:.1rem}.detail-row dt{font-size:15px}.shelf{columns:1}}
 @media (max-width:430px){.detail-sections{grid-template-columns:1fr}}
 </style>
@@ -1874,9 +1880,10 @@ document.addEventListener('click',event=>{
   const route=event.target.closest('[data-route]');
   if(route&&!event.metaKey&&!event.ctrlKey&&!event.shiftKey&&!event.altKey){event.preventDefault();navigate(route.dataset.route);return}
   /* Kapak/afis tiklanmasi: isik kutusu. .detail-art icinde link yok; bu
-     dal data-route kolundan sonra guvenle calisir. */
+     dal data-route kolundan sonra guvenle calisir.
+     v1.36b: mobilde kapak zaten buyuk gorundugu icin kutu acilmaz. */
   const art=event.target.closest('.detail-art');
-  if(art){openLightbox(art.querySelector('img'));return}
+  if(art){if(!matchMedia('(max-width:700px)').matches)openLightbox(art.querySelector('img'));return}
   /* "Rastgele" bolumu: tur secici ve "Yeniden cek". Diger butonlardan
      bagimsiz; sadece bu iki siniftir. */
   const pick=event.target.closest('[data-rand-kind]');
