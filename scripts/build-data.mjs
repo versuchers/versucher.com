@@ -45,47 +45,65 @@ const SOURCES = JSON.parse(await readFile(SOURCES_FILE, 'utf8'));
 const SCHEMAS = {
   books: {
     homeOrder: ['anasayfa sıra', 'anasayfa sıralama'],
-    title: ['kitap türkçe ismi', 'kitap (türkçe isim)'],
-    author: ['yazar'],
-    originalTitle: ['kitap orijinal ismi', 'kitap (orijinal isim)'],
-    /* Kitaplardaki baslik TIRE ile ayri: "alternatif isim - arama terimleri"
-       (film/dizide slash). Ikisini de alias'a yaziyoruz ki baslik hangi
-       ayraci kullanirsa kullansin eslesme kirilmasin. */
-    altTitle: ['alternatif isim - arama terimleri', 'alternatif isim / arama terimleri', 'alternatif isim', 'arama terimleri'],
+    /* 05.10.2026 v1.38: Sheet'deki kitaplar sutunlari yeniden
+       adlandirildi ("Kitap Turkce Ismi" -> "Turkce Adi", "Yazar"
+       -> "Yazar Adi", "Main Label" -> "Ana Tema", "Alternatif
+       Isim - Arama Terimleri" -> "Etiketler", "Baş Karakter" ->
+       "Protagonist", "Kurgu mu" -> "Eser Türü", "Tür" -> "Ana
+       Tür", "Yazar Doğum Tarihi" -> "Yazar Doğum Yılı", "Orijinal
+       Yayın Yılı" -> "Orijinal Basım Yılı", "Türkiye Yayın Yılı"
+       -> "Türçe İlk Basım Yılı", "İlk Okuduğum Yıl" -> "Okuduğum
+       Yıl" vb.). YENİ basliklar alias'ların BASINA alindi; eskiler
+       de aynen duruyor ki olası geri dönüşlerde eslesme kirilmasin.
+       Tam eslesme once calistigindan "Ana Tür" ile "Eser Türü"
+       birbirini kamaz; aksi halde bulanık eslesme "Tür" aliasini
+       "Eser Türü" sutununa atardi (bkz. columnMap notu). */
+    title: ['türkçe adı', 'kitap türkçe ismi', 'kitap (türkçe isim)'],
+    author: ['yazar adı', 'yazar'],
+    originalTitle: ['orijinal adı', 'kitap orijinal ismi', 'kitap (orijinal isim)'],
+    /* Kitaplardaki baslik TIRE ile ayri: "alternatif isim - arama
+       terimleri" (film/dizide slash). Ikisini de alias'a yaziyoruz
+       ki baslik hangi ayraci kullanirsa kullansin eslesme kirilmasin.
+       v1.38: sutun artik "Etiketler" adini tasiyor. */
+    altTitle: ['etiketler', 'alternatif isim - arama terimleri', 'alternatif isim / arama terimleri', 'alternatif isim', 'arama terimleri'],
     image: ['kapak görseli', 'görsel linki'],
-    bookScore: ['kitap puanı', 'kitap puan'],
+    bookScore: ['kitap puanım', 'kitap puanı', 'kitap puan'],
     seriesScore: ['seri puanı', 'seri puan'],
-    seriesName: ['seri sıralaması', 'seri adı'],
-    mainLabel: ['main label'],
+    seriesName: ['seri', 'seri sıralaması', 'seri adı'],
+    mainLabel: ['ana tema', 'main label'],
     reason: ['=nasıl keşfettim / neden okudum'],
-    reasonFound: ['nasıl keşfettim'],
-    reasonWhy: ['neden okudum'],
+    reasonFound: ['keşif kaynağım', 'nasıl keşfettim'],
+    reasonWhy: ['okuma nedenim', 'neden okudum'],
     goodreads: ['goodreads linki'],
     publisher: ['yayınevi'],
     translator: ['çevirmen'],
-    character: ['baş karakter'],
-    formats: ['okuduğum formatlar', 'okunan tüm formatlar'],
-    acquisition: ['ilk erişim / edinim şekli'],
-    genre: ['tür'],
+    character: ['protagonist', 'baş karakter'],
+    formats: ['okuduğum format', 'okuduğum formatlar', 'okunan tüm formatlar'],
+    acquisition: ['erişim şeklim', 'ilk erişim / edinim şekli'],
+    genre: ['ana tür', 'tür'],
     subgenre: ['alt tür'],
-    authorOrigin: ['yazar köken'],
-    fiction: ['kurgu mu', 'kurgu mu?'],
+    /* v1.38: "Yazar Ülke" sutunu eskiden "yazar köken" aliasıyla
+       ESLESMIYORDU (authorOrigin 200 kayitta da bos kalmissi);
+       yeni ad buraya aliniyor, eski denemeler de korunuyor. */
+    authorOrigin: ['yazar ülke', 'yazar köken', 'yazar ülkesi'],
+    fiction: ['eser türü', 'kurgu mu', 'kurgu mu?'],
     owned: ['kitap bende var mı', 'kitap bende var mı?'],
-    city: ['ilk okunan şehir'],
+    city: ['okuduğum şehir', 'ilk okunan şehir'],
     readLanguage: ['okuduğum dil', 'okunduğu dil'],
     writtenLanguage: ['orijinal dili', 'yazıldığı dil'],
-    authorScore: ['yazar puanı', 'yazar puan'],
+    authorScore: ['yazar puanım', 'yazar puanı', 'yazar puan'],
     pages: ['sayfa sayısı'],
     reread: ['tekrar okur muyum', 'tekrar okur muyum?'],
     readCount: ['kaç kez okudum', 'kaç kez okundu'],
-    authorBirth: ['yazar doğum tarihi'],
-    originalDate: ['orijinal yayın yılı', 'orijinal yayın tarihi'],
-    /* Sheet basligi "Türkiye Yayın Yılı" olarak degistirildi; eski "tarihi"
-       yazimi da alias'ta duruyor ki baslik tekrar degisse kirilmasin.
-       DİKKAT: eski tek ad, bulanık eslesmeyle "Tür" sütununu kapiyordu
-       (bkz. columnMap notu) — o yuzden yeni baslik MUTLAKA alias'ta olmali. */
-    turkishPublishDate: ['türkiye yayın yılı', 'türkiye yayın yili', 'türkiye yayın tarihi', 'türkiye yayın. tarihi'],
-    firstReadDate: ['ilk okuduğum yıl', 'ilk kez okunan tarihi', 'ilk kez okunduğu tarih'],
+    authorBirth: ['yazar doğum yılı', 'yazar doğum tarihi'],
+    originalDate: ['orijinal basım yılı', 'orijinal yayın yılı', 'orijinal yayın tarihi'],
+    /* Sheet basligi "Türçe İlk Basım Yılı" olarak degisti (v1.38);
+       eski "tarihi" yazimi da alias'ta duruyor ki baslik tekrar
+       degisse kirilmasin. DİKKAT: eski tek ad, bulanık eslesmeyle
+       "Tür" sütununu kapiyordu (bkz. columnMap notu) — o yuzden
+       yeni baslik MUTLAKA alias'ta olmali. */
+    turkishPublishDate: ['türçe ilk basım yılı', 'türkiye yayın yılı', 'türkiye yayın yili', 'türkiye yayın tarihi', 'türkiye yayın. tarihi'],
+    firstReadDate: ['okuduğum yıl', 'ilk okuduğum yıl', 'ilk kez okunan tarihi', 'ilk kez okunduğu tarih'],
     density: ['yoğunluk']
   },
   films: {
