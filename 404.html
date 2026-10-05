@@ -445,10 +445,11 @@ const CFG={
   lists:{label:'Playlistler',unit:'playlist',fav:'Favori playlistler',dateLabel:''}
 };
 const ROUTE_PREFIX={books:'kitap',films:'film',series:'dizi',playlists:'playlist'};
-/* 05.10.2026 v1.39: kitaplarin ozel alanlari yeni sutun
-   adlariyla (film/dizi sutunlari ayni kaldigi icin ortak
-   alanlar degismedi). */
-const FILTER_TITLES={author:'Yazar Adı',genre:'Tür',subgenre:'Alt Tür',authorOrigin:'Yazar Ülke',fiction:'Eser Türü',city:'Okuduğum Şehir',acquisition:'Erişim Şeklim',formats:'Okuduğum Format',translator:'Çevirmen',publisher:'Yayınevi',platform:'İlk kez hangi platformda',writtenLanguage:'Orijinal Dili',language:'Dil',director:'Yönetmen',firstCity:'İlk kez izlenen şehir',country:'Yapım ülkesi',directorOrigin:'Yönetmen nereli',reason:'Nasıl keşfettim / neden izledim',done:'Bitirildi mi?',category:'Kategori',feeling:'His',creator:'Creator / showrunner',network:'Network',format:'Format',medium:'Medium',reasonFound:'Nasıl keşfettim',sourceWork:'Kaynak eser',sourceAuthor:'Kaynak yazar'};
+/* 05.10.2026 v1.40: ölü filtre anahtarları temizlendi
+   (directorOrigin, density, adaptation, rewatch, medium).
+   film/dizi sutunlari ayni kaldigi icin ortak
+   alanlar degismedi. */
+const FILTER_TITLES={author:'Yazar Adı',genre:'Tür',subgenre:'Alt Tür',authorOrigin:'Yazar Ülke',fiction:'Eser Türü',city:'Okuduğum Şehir',acquisition:'Erişim Şeklim',formats:'Okuduğum Format',translator:'Çevirmen',publisher:'Yayınevi',platform:'İlk kez hangi platformda',writtenLanguage:'Orijinal Dili',language:'Dil',director:'Yönetmen',firstCity:'İlk kez izlenen şehir',country:'Yapım ülkesi',reason:'Nasıl keşfettim / neden izledim',done:'Bitirildi mi?',category:'Kategori',feeling:'His',creator:'Creator / showrunner',network:'Network',format:'Format',reasonFound:'Nasıl keşfettim',sourceWork:'Kaynak eser',sourceAuthor:'Kaynak yazar'};
 /* Navbar'da "Ana sayfa" YOK: site basligi zaten ana sayfaya gidiyor.
    Bu yuzden NAV icinde 'home' anahtari kalmadi. hrefForView()'in 'home'
    dalini (view==='home' ? '/' : ...) SILMEDIK: go('home') ile rota uretimi
@@ -1327,6 +1328,7 @@ function fieldValues(item,field){
     if(field==='language')return missing(item.language)?[]:[clean(item.language)];
     /* "Medium" sutunu JSON'da category alaninda duruyor. */
     if(field==='medium')return missing(item.category)?[]:[clean(item.category)];
+    if(field==='category')return missing(item.category)?[]:[clean(item.category)];
     if(field==='reasonFound')return missing(item.reasonFound)?[]:[clean(item.reasonFound)];
   }else if(item.sec==='playlists'){
     if(field==='genre')return item.genres;
@@ -1721,7 +1723,6 @@ function detailPage(item){
         /* Orijinal ad, yalnizca "on ek + film" ile ayni degilse gosterilir. */
         originalTitleDiffers(item)?row('Orijinal film adı',item.originalTitle):null,
         chipRow('Tür',item,'genre'),
-        row('Uyarlama kaynağı',item.adaptation),
         /* 05.10.2026 v1.35: kaynak eser/yazar, tiklanabilir filtre cipi. */
         chipRow('Kaynak eser',item,'sourceWork'),
         chipRow('Kaynak yazar',item,'sourceAuthor'),
@@ -1729,19 +1730,17 @@ function detailPage(item){
         chipRow('Yapım ülkesi',item,'country'),
         chipRow('Dil',item,'language'),
         chipRow('Yönetmen',item,'director'),
-        chipRow('Yönetmen köken',item,'directorOrigin'),
         /* 03.10.2026: Sheet'teki Oyuncular / Senaryo / Hikaye sutunlari.
            Her kisi /kisi/... sayfasina gider; 5'ten fazlasi gizlenir. */
         peopleRow('Oyuncular',item,'cast'),
         peopleRow('Senaryo',item,'screenplay'),
         peopleRow('Hikaye',item,'story'),
-                row('Nasıl keşfettim',item.reasonFound),
+        row('Nasıl keşfettim',item.reasonFound),
         row('Neden izledim',item.reasonWhy),
         row('İzleme tarihi',item.watchDate),
         chipRow('İlk izlediğim platform',item,'platform'),
         chipRow('İlk izlediğim şehir',item,'firstCity'),
-        row('Kaç kez izledim',item.watchCountRaw),
-        row('Tekrar izler miyim',item.rewatch)
+        row('Kaç kez izledim',item.watchCountRaw)
       ],'film-details')
     ];
   }else if(item.sec==='series'){
@@ -1750,7 +1749,6 @@ function detailPage(item){
         /* Orijinal ad, yalnizca "dizi" sutunundakinden farkli ise gosterilir. */
         valueKey(item.originalTitle)!==valueKey(item.title)?row('Orijinal adı',item.originalTitle):null,
         chipRow('Tür',item,'genre'),
-        row('Uyarlama kaynağı',item.adaptation),
         /* 05.10.2026 v1.35: kaynak eser/yazar, tiklanabilir filtre cipi. */
         chipRow('Kaynak eser',item,'sourceWork'),
         chipRow('Kaynak yazar',item,'sourceAuthor'),
@@ -1760,11 +1758,11 @@ function detailPage(item){
         /* 03.10.2026: bu alti satir artik filtre sayfasina giden cip;
            bos degerde chipRow null doner ve satir gizlenir. */
         chipRow('Creator / showrunner',item,'creator'),
-                row('Durumu',item.statusRaw),
+        row('Durumu',item.statusRaw),
         chipRow('Format',item,'format'),
         chipRow('Dili',item,'language'),
         chipRow('Network',item,'network'),
-        chipRow('Medium',item,'medium'),
+        chipRow('Medium',item,'category'),
         chipRow('Nasıl keşfettim',item,'reasonFound'),
         row('Neden izledim',item.reasonWhy),
         row('Başladığım yıl',item.watchDate),
@@ -1773,8 +1771,7 @@ function detailPage(item){
         row('Ne kadarını izledim',item.watched),
         row('Favori sezon',item.favoriteSeason),
         chipRow('Bitirdim mi?',item,'done'),
-        row('Kaç kez bitirdim',item.completionCountRaw),
-        row('Tekrar izler miyim',item.rewatch)
+        row('Kaç kez bitirdim',item.completionCountRaw)
       ])
     ];
   }else{
