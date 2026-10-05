@@ -271,6 +271,16 @@ p{margin-top:.55rem}
 .detail-content::before{content:"";position:absolute;left:0;top:0;bottom:0;width:1px;background:var(--line)}
 .detail-top-info{min-width:0;margin-top:1rem}
 .detail-art-column .cover{width:100%;max-width:none;box-shadow:0 2px 5px rgba(0,0,0,.55),0 20px 34px -10px rgba(0,0,0,.55)}
+
+/* 05.10.2026 v1.36: kapak tiklaninca isik kutusu. Gorsel ekranin tam
+   ortasinda (yatay+dikey) buyur; arka plan koyulur. Kapseye / bosluga
+   ikinci tik ya da Esc kapatir. */
+.detail-art-column .cover:has(img){cursor:zoom-in}
+.lightbox{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(12,11,8,.74);opacity:0;transition:opacity .18s ease;cursor:zoom-out}
+.lightbox.is-on{opacity:1}
+.lightbox img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.65)}
+body.lb-open{overflow:hidden}
+@media (prefers-reduced-motion:reduce){.lightbox{transition:none}}
 .detail-art-column .detail-top-info{text-align:center}
 .detail-art-column .detail-top-info .main-label-row,.detail-art-column .detail-top-info .compact-links{justify-content:center}
 .detail-series{font-family:var(--ui);font-size:.7em;font-weight:400;color:var(--muted);white-space:nowrap;margin-left:.35rem;vertical-align:middle}
@@ -1842,9 +1852,31 @@ try{const saved=localStorage.getItem('theme');if(saved)root.dataset.theme=saved}
 $('#theme').addEventListener('click',()=>{const next=currentTheme()==='dark'?'light':'dark';root.dataset.theme=next;try{localStorage.setItem('theme',next)}catch(_){}themeLabel()});
 themeLabel();
 
+/* 05.10.2026 v1.36: kapak isik kutusu — tiklanan gorsel ekranin tam
+   ortasinda (yatay+dikey) buyur, arka plan koyulur. Gorsele ikinci tik,
+   bosluga tik ya da Esc kapatir ve detay sayfasi geri gelir. */
+function openLightbox(img){
+  if(!img||document.querySelector('.lightbox'))return;
+  const box=document.createElement('div');
+  box.className='lightbox';
+  box.setAttribute('role','dialog');
+  box.setAttribute('aria-label',img.alt||'');
+  const big=document.createElement('img');
+  big.src=img.currentSrc||img.src;
+  big.alt=img.alt||'';
+  box.appendChild(big);
+  box.addEventListener('click',()=>{box.remove();document.body.classList.remove('lb-open')});
+  document.body.appendChild(box);
+  document.body.classList.add('lb-open');
+  requestAnimationFrame(()=>box.classList.add('is-on'));
+}
 document.addEventListener('click',event=>{
   const route=event.target.closest('[data-route]');
   if(route&&!event.metaKey&&!event.ctrlKey&&!event.shiftKey&&!event.altKey){event.preventDefault();navigate(route.dataset.route);return}
+  /* Kapak/afis tiklanmasi: isik kutusu. .detail-art icinde link yok; bu
+     dal data-route kolundan sonra guvenle calisir. */
+  const art=event.target.closest('.detail-art');
+  if(art){openLightbox(art.querySelector('img'));return}
   /* "Rastgele" bolumu: tur secici ve "Yeniden cek". Diger butonlardan
      bagimsiz; sadece bu iki siniftir. */
   const pick=event.target.closest('[data-rand-kind]');
@@ -1895,6 +1927,8 @@ document.addEventListener('input',event=>{
 });
 /* "/" tusu aramayi acar; alan bos degilse sayfa ici arama kutusuna odaklanir. */
 document.addEventListener('keydown',event=>{
+  /* 05.10.2026 v1.36: Esc acik isik kutusunu kapatir. */
+  if(event.key==='Escape'){const lb=document.querySelector('.lightbox');if(lb){lb.remove();document.body.classList.remove('lb-open')}return}
   if(event.key!=='/'||event.metaKey||event.ctrlKey||event.altKey)return;
   const tag=(event.target&&event.target.tagName||'').toLowerCase();
   if(tag==='input'||tag==='textarea'||tag==='select'||(event.target&&event.target.isContentEditable))return;
