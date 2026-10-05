@@ -2617,3 +2617,36 @@ linkleri ve masaüstü düzeni aynı.
 
 Işık kutusu masaüstü davranışı, detay yerleşimi, veri dosyaları — v1.36
 ile aynı.
+## v1.38 değişiklikleri
+
+### Kitaplar Sheet'inde sütun adları değişimi desteği
+
+Kitaplar sayfasındaki Google Sheet sütun başlıkları yeniden
+adlandırıldı (sıralama ayni): `Kitap Türkçe İsmi` → `Türkçe
+Adı`, `Yazar` → `Yazar Adı`, `Kitap Orijinal İsmi` →
+`Orijinal Adı`, `Main Label` → `Ana Tema`, `Alternatif İsim -
+Arama Terimleri` → `Etiketler`, `İlk Erişim / Edinim Şekli` →
+`Erişim Şeklim`, `İlk Okuduğum Yıl` → `Okuduğum Yıl`,
+`Neden Okudum` → `Okuma Nedenim`, `Nasıl Keşfettim` →
+`Keşif Kaynağım`, `Baş Karakter` → `Protagonist`, `Kurgu mu`
+→ `Eser Türü`, `Goodreads'e Ekledim Mi` → `Goodreads Durumu`,
+`Tür` → `Ana Tür`, `İlk Okunan Şehir` → `Okuduğum Şehir`,
+`Yazar Puanı` → `Yazar Puanım`, `Yazar Doğum Tarihi` →
+`Yazar Doğum Yılı`, `Orijinal Yayın Yılı` → `Orijinal Basım
+Yılı`, `Türkiye Yayın Yılı` → `Türçe İlk Basım Yılı`, `Kitap
+Puanı` → `Kitap Puanım`.
+
+build-data.mjs kitaplar şemasına yeni başlıklar alias olarak
+**başlara** eklendi; eski adlar da korundu (geri dönüşte
+kırılmasın). Tam eşleşme öncelikli olduğundan "Ana Tür" ile
+"Eser Türü" birbirini kapmıyor — yeni alias'lar olmasaydı
+bulanık eşleşme `Tür` alanını "Eser Türü" sütununa
+bağlıyordu.
+
+**Düzeltme:** `Yazar Ülke` sütunu eskiden `yazar köken`
+aliasıyla eşleşmediği için kitaplarda `yazar kökeni` alanı
+200 kayıtta da boş kalıyordu; artık doğru eşleniyor.
+
+Etkilenen dosya: `scripts/build-data.mjs` (site JS'i,
+index.html/404.html ve veri şeması aynı — alan adları
+değişmediği için site tarafında değişiklik yok).
