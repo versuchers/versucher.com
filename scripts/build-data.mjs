@@ -107,6 +107,10 @@ const SCHEMAS = {
     cast: ['oyuncular'],
     screenplay: ['senaryo'],
     story: ['hikaye'],
+    /* 05.10.2026 v1.35: uyarlama kaynaginin yerini alan iki sutun.
+       Kaynak Eser + Kaynak Yazar; ikisi de tiklanabilir filtre cipi olur. */
+    sourceAuthor: ['kaynak yazar'],
+    sourceWork: ['kaynak eser'],
     /* Onceki "Dili" sutunu "Dil" olarak yeniden adlandirildi. DIZILERDE ayri
        bir "Dili" sutunu var ve onun alias'i 'dili' — ikisi karismasin diye
        burada yalnizca 'dil' yaziyor. */
@@ -159,6 +163,9 @@ const SCHEMAS = {
     network: ['network'],
     /* Yeni sutun (03.10.2026): virgulle ayrilmis oyuncu listesi. */
     cast: ['oyuncular'],
+    /* 05.10.2026 v1.35: Kaynak Eser + Kaynak Yazar (filmlerle ayni). */
+    sourceAuthor: ['kaynak yazar'],
+    sourceWork: ['kaynak eser'],
     language: ['dili'],
     format: ['format'],
     density: ['yoğunluk', 'yoğunluk seviyesi'],
@@ -570,6 +577,9 @@ function makeItems(type, headers, rows) {
         castRoles: castParsed.roles,
         screenplay: splitPeople(get('screenplay')),
         story: splitPeople(get('story')),
+        /* 05.10.2026 v1.35: kaynak eser/yazar (ham metin; site virgulden boler). */
+        sourceAuthor: get('sourceAuthor'),
+        sourceWork: get('sourceWork'),
         languageRaw: get('language'),
         languages: splitList(get('language')),
         letterboxd: get('letterboxd'),
@@ -610,6 +620,9 @@ function makeItems(type, headers, rows) {
         countries: splitList(get('country')),
         cast: castParsed.names,
         castRoles: castParsed.roles,
+        /* 05.10.2026 v1.35: kaynak eser/yazar (ham metin; site virgulden boler). */
+        sourceAuthor: get('sourceAuthor'),
+        sourceWork: get('sourceWork'),
         statusRaw: get('status'),
         originalTitle: get('originalTitle'),
         altTitle: get('altTitle'),
