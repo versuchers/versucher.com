@@ -2686,3 +2686,22 @@ için değişmedi.
 
 Film ve dizi detay sayfaları, veri dosyaları, veri
 üretimi (v1.38 build-data.mjs) — ayni.
+## v1.40 değişiklikleri
+
+### Kod temizliği (ölü/kalıntı kodların silinmesi)
+
+**build-data.mjs:**
+- Kitaplar: `reason` (birleşik), `seriesScore`, `density` şema alanları silindi
+- Filmler: `reason`, `genreMain`, `directorOrigin`, `density`, `rewatch`, `adaptation`, `downloaded` şema alanları silindi
+- Diziler: `reason`, `density`, `adaptation`, `rewatch` şema alanları silindi
+- `makeItems` içindeki ölü atamalar silindi: `tmdbId`, `downloaded`, `adaptation`, `rewatch`, `seriesScore`, `directorOrigin` (film); `adaptation`, `rewatch` (dizi)
+- Eski alias kalıntıları (`kitap (türkçe isim)`, `yazar köken`, `türkiye yayın yili` vb.) temizlendi
+
+**index.html:**
+- Kitap detayı: "Neden okudum" satırı silindi (0/200 doluydu)
+- Film detayı: "Uyarlama kaynağı", "Yönetmen köken", "Tekrar izler miyim" satırları silindi
+- Dizi detayı: "Uyarlama kaynağı", "Tekrar izler miyim" satırları silindi; "Medium" çipi `category` alanını kullanacak şekilde düzeltildi (artık "Live Action", "Animasyon" gibi değerler görünüyor)
+- `FILTER_TITLES`'dan ölü anahtarlar silindi: `directorOrigin`, `medium`, `density`, `adaptation`, `rewatch`
+- `fieldValues` fonksiyonuna series için `category` alanı eklendi (Medium filtre linkleri artık çalışıyor)
+
+**Sonuç:** Veri üretimi daha hızlı, detay sayfalarında boş satır kalmadı, filtre çipleri tutarlı.
