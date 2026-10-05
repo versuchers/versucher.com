@@ -46,32 +46,15 @@ const SCHEMAS = {
   books: {
     homeOrder: ['anasayfa sıra', 'anasayfa sıralama'],
     /* 05.10.2026 v1.38: Sheet'deki kitaplar sutunlari yeniden
-       adlandirildi ("Kitap Turkce Ismi" -> "Turkce Adi", "Yazar"
-       -> "Yazar Adi", "Main Label" -> "Ana Tema", "Alternatif
-       Isim - Arama Terimleri" -> "Etiketler", "Baş Karakter" ->
-       "Protagonist", "Kurgu mu" -> "Eser Türü", "Tür" -> "Ana
-       Tür", "Yazar Doğum Tarihi" -> "Yazar Doğum Yılı", "Orijinal
-       Yayın Yılı" -> "Orijinal Basım Yılı", "Türkiye Yayın Yılı"
-       -> "Türçe İlk Basım Yılı", "İlk Okuduğum Yıl" -> "Okuduğum
-       Yıl" vb.). YENİ basliklar alias'ların BASINA alindi; eskiler
-       de aynen duruyor ki olası geri dönüşlerde eslesme kirilmasin.
-       Tam eslesme once calistigindan "Ana Tür" ile "Eser Türü"
-       birbirini kamaz; aksi halde bulanık eslesme "Tür" aliasini
-       "Eser Türü" sutununa atardi (bkz. columnMap notu). */
+       adlandirildi. YENİ basliklar alias'ların BASINA alindi. */
     title: ['türkçe adı', 'kitap türkçe ismi', 'kitap (türkçe isim)'],
     author: ['yazar adı', 'yazar'],
     originalTitle: ['orijinal adı', 'kitap orijinal ismi', 'kitap (orijinal isim)'],
-    /* Kitaplardaki baslik TIRE ile ayri: "alternatif isim - arama
-       terimleri" (film/dizide slash). Ikisini de alias'a yaziyoruz
-       ki baslik hangi ayraci kullanirsa kullansin eslesme kirilmasin.
-       v1.38: sutun artik "Etiketler" adini tasiyor. */
     altTitle: ['etiketler', 'alternatif isim - arama terimleri', 'alternatif isim / arama terimleri', 'alternatif isim', 'arama terimleri'],
     image: ['kapak görseli', 'görsel linki'],
     bookScore: ['kitap puanım', 'kitap puanı', 'kitap puan'],
-    seriesScore: ['seri puanı', 'seri puan'],
     seriesName: ['seri', 'seri sıralaması', 'seri adı'],
     mainLabel: ['ana tema', 'main label'],
-    reason: ['=nasıl keşfettim / neden okudum'],
     reasonFound: ['keşif kaynağım', 'nasıl keşfettim'],
     reasonWhy: ['okuma nedenim', 'neden okudum'],
     goodreads: ['goodreads linki'],
@@ -82,9 +65,6 @@ const SCHEMAS = {
     acquisition: ['erişim şeklim', 'ilk erişim / edinim şekli'],
     genre: ['ana tür', 'tür'],
     subgenre: ['alt tür'],
-    /* v1.38: "Yazar Ülke" sutunu eskiden "yazar köken" aliasıyla
-       ESLESMIYORDU (authorOrigin 200 kayitta da bos kalmissi);
-       yeni ad buraya aliniyor, eski denemeler de korunuyor. */
     authorOrigin: ['yazar ülke', 'yazar köken', 'yazar ülkesi'],
     fiction: ['eser türü', 'kurgu mu', 'kurgu mu?'],
     owned: ['kitap bende var mı', 'kitap bende var mı?'],
@@ -97,11 +77,6 @@ const SCHEMAS = {
     readCount: ['kaç kez okudum', 'kaç kez okundu'],
     authorBirth: ['yazar doğum yılı', 'yazar doğum tarihi'],
     originalDate: ['orijinal basım yılı', 'orijinal yayın yılı', 'orijinal yayın tarihi'],
-    /* Sheet basligi "Türçe İlk Basım Yılı" olarak degisti (v1.38);
-       eski "tarihi" yazimi da alias'ta duruyor ki baslik tekrar
-       degisse kirilmasin. DİKKAT: eski tek ad, bulanık eslesmeyle
-       "Tür" sütununu kapiyordu (bkz. columnMap notu) — o yuzden
-       yeni baslik MUTLAKA alias'ta olmali. */
     turkishPublishDate: ['türçe ilk basım yılı', 'türkiye yayın yılı', 'türkiye yayın yili', 'türkiye yayın tarihi', 'türkiye yayın. tarihi'],
     firstReadDate: ['okuduğum yıl', 'ilk okuduğum yıl', 'ilk kez okunan tarihi', 'ilk kez okunduğu tarih'],
     density: ['yoğunluk']
@@ -113,46 +88,28 @@ const SCHEMAS = {
     year: ['yapım yılı'],
     pre: ['ön ek'],
     mainLabel: ['main label'],
-    reason: ['=nasıl keşfettim / neden izledim'],
     reasonFound: ['nasıl keşfettim'],
     reasonWhy: ['neden izledim'],
     genre: ['tür', 'tür (letterboxd)', "tür (letterboxd'da yazanlar)"],
-    genreMain: ['tür'],
     platform: ['ilk izlediğim platform', 'ilk kez hangi platformda'],
     director: ['yönetmen'],
-    /* Yeni sutunlar (03.10.2026). Oyuncular/Senaryo/Hikaye VIRGULLE ayrilmis
-       kisi listeleridir; splitPeople() ile diziye cevrilir. */
     cast: ['oyuncular'],
     screenplay: ['senaryo'],
     story: ['hikaye'],
-    /* 05.10.2026 v1.35: uyarlama kaynaginin yerini alan iki sutun.
-       Kaynak Eser + Kaynak Yazar; ikisi de tiklanabilir filtre cipi olur. */
     sourceAuthor: ['kaynak yazar'],
     sourceWork: ['kaynak eser'],
-    /* Onceki "Dili" sutunu "Dil" olarak yeniden adlandirildi. DIZILERDE ayri
-       bir "Dili" sutunu var ve onun alias'i 'dili' — ikisi karismasin diye
-       burada yalnizca 'dil' yaziyor. */
     language: ['dil'],
     image: ['film afişi linki'],
     originalTitle: ['film orjinal adı', 'film orijinal adı'],
-    /* Sheet'teki 'alternatif isim / arama terimleri' sutunu: yalnizca arama icin.
-       Hem baska adlar hem arama anahtar kelimeleri iceriyor ("alien",
-       "kara sovalye, batman", "cin"). Artik bas harf buyutme kurallari
-       olmadigi icin zaten aynen korunuyor. */
     altTitle: ['alternatif isim / arama terimleri', 'alternatif isim', 'arama terimleri'],
     firstCity: ['ilk izlediğim şehir', 'ilk kez izlenen şehir'],
     watchDate: ['izleme tarihi', 'izlenme tarihi'],
     watchCount: ['kaç kez izledim', 'kaç kez izlendi'],
     seriesOrder: ['seri sıralaması'],
     country: ['yapım ülkesi'],
-    directorOrigin: ['yönetmen köken', 'yönetmen nereli'],
     letterboxd: ['letterboxd linki'],
     tmdb: ['tmdb linki'],
-    imdb: ['imdb linki', 'imdb'],
-    density: ['yoğunluk'],
-    rewatch: ['tekrar izler miyim', 'tekrar izler miyim?', 'tekrar izleme'],
-    adaptation: ['uyarlama kaynağı'],
-    downloaded: ['afişi indirdim mi']
+    imdb: ['imdb linki', 'imdb']
   },
   series: {
     homeOrder: ['anasayfa sıra', 'anasayfa sıralama'],
@@ -161,7 +118,6 @@ const SCHEMAS = {
     year: ['yapım yılı'],
     watchDate: ['başladığım yıl', 'başladığım tarih', 'izlenme tarihi'],
     mainLabel: ['main label'],
-    reason: ['=nasıl keşfettim / neden izledim'],
     reasonFound: ['nasıl keşfettim'],
     reasonWhy: ['neden izledim'],
     favoriteSeason: ['favori sezon'],
@@ -175,24 +131,18 @@ const SCHEMAS = {
     country: ['yapım ülkesi'],
     status: ['durumu'],
     originalTitle: ['orijinal adı'],
-    /* Filmlerdeki gibi: baska ad + arama terimleri, yalnizca arama icin. */
     altTitle: ['alternatif isim / arama terimleri', 'alternatif isim', 'arama terimleri'],
     creator: ['creator / showrunner'],
     network: ['network'],
-    /* Yeni sutun (03.10.2026): virgulle ayrilmis oyuncu listesi. */
     cast: ['oyuncular'],
-    /* 05.10.2026 v1.35: Kaynak Eser + Kaynak Yazar (filmlerle ayni). */
     sourceAuthor: ['kaynak yazar'],
     sourceWork: ['kaynak eser'],
     language: ['dili'],
     format: ['format'],
-    density: ['yoğunluk', 'yoğunluk seviyesi'],
-    adaptation: ['uyarlama kaynağı'],
     imdb: ['imdb'],
     tmdb: ['tmdb'],
     tvmaze: ['tvmaze linki'],
-    firstCity: ['ilk izlediğim şehir', 'ilk kez izlenen şehir'],
-    rewatch: ['tekrar izler miyim', 'tekrar izler miyim?', 'tekrar izleme']
+    firstCity: ['ilk izlediğim şehir', 'ilk kez izlenen şehir']
   },
   playlists: {
     title: ['name'],
@@ -534,13 +484,10 @@ function makeItems(type, headers, rows) {
     if (type === 'books') {
       Object.assign(item, {
         firstReadDate: get('firstReadDate'),
-        seriesScoreRaw: get('seriesScore'),
-        seriesScore: numberValue(get('seriesScore')),
         seriesName: get('seriesName'),
         author: get('author'),
         originalTitle: get('originalTitle'),
         mainLabel: get('mainLabel'),
-        reason: get('reason'),
         reasonFound: get('reasonFound'),
         reasonWhy: get('reasonWhy'),
         goodreads: get('goodreads'),
@@ -574,7 +521,6 @@ function makeItems(type, headers, rows) {
         watchCount: numberValue(get('watchCount')),
         pre: get('pre'),
         mainLabel: get('mainLabel'),
-        reason: get('reason'),
         reasonFound: get('reasonFound'),
         reasonWhy: get('reasonWhy'),
         platform: get('platform'),
@@ -587,7 +533,6 @@ function makeItems(type, headers, rows) {
         seriesOrder: get('seriesOrder'),
         countryRaw: get('country'),
         countries: splitList(get('country')),
-        directorOrigin: get('directorOrigin'),
         /* Yeni sutunlar. cast en fazla 243 kisi olabiliyor; site 5'ini
            gosterip gerisini "devamını gör" butonuna sakliyor.
            05.10.2026: castRoles = ad -> rol haritasi (cip baloncugu). */
@@ -602,12 +547,7 @@ function makeItems(type, headers, rows) {
         languages: splitList(get('language')),
         letterboxd: get('letterboxd'),
         tmdb: get('tmdb'),
-        tmdbId: get('tmdbId'),
-        adaptation: get('adaptation'),
-        downloaded: get('downloaded'),
-        imdb: safeUrl(get('imdb')),
-        rewatchRaw: get('rewatch'),
-        rewatch: scaleLabel(get('rewatch'), REREAD_LABELS)
+        imdb: safeUrl(get('imdb'))
       });
     } else if (type === 'series') {
       const doneValue = clean(get('done'));
@@ -621,7 +561,6 @@ function makeItems(type, headers, rows) {
       Object.assign(item, {
         watchDate: get('watchDate'),
         mainLabel: get('mainLabel'),
-        reason: get('reason'),
         reasonFound: get('reasonFound'),
         reasonWhy: get('reasonWhy'),
         platform: get('platform'),
@@ -649,10 +588,7 @@ function makeItems(type, headers, rows) {
         network: get('network'),
         language: get('language'),
         format: get('format'),
-        adaptation: get('adaptation'),
         firstCity: get('firstCity'),
-        rewatchRaw: get('rewatch'),
-        rewatch: scaleLabel(get('rewatch'), REREAD_LABELS),
         imdb: safeUrl(get('imdb')),
         tmdb: safeUrl(get('tmdb')),
         tvmaze: safeUrl(get('tvmaze'))
