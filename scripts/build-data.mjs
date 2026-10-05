@@ -283,6 +283,36 @@ function splitPeople(value) {
     .map(clean)
     .filter((v) => v && !/bulunam/i.test(v) && !missing(v));
 }
+/* 05.10.2026 v1.31: Oyuncular sutunu artik Sheet'te JSON dizi olarak tutuluyor:
+   [{"name": "Rebecca Ferguson", "role": "Juliette Nichols"}, ...]
+   splitPeople virgulden boldugu icin bu metni anlamsiz parcalara ayiriyordu
+   ("{\"name\": \"Anna Torv\"" gibi parcalar cip oluyordu). parseCast once
+   JSON olarak cozmeyi dener; basaramazsa (eski duz liste bicimi) virgul
+   yoluna geri duser.
+   Donus: names = kisi adlari (sitede cip olur), roles = ad -> rol haritasi
+   (detay sayfasinda imlec cipin uzerine gelince baloncukta gosterilir). */
+function parseCast(value) {
+  const v = clean(value);
+  if (!v || missing(v)) return { names: [], roles: {} };
+  if (v.startsWith('[')) {
+    try {
+      const arr = JSON.parse(v);
+      if (Array.isArray(arr)) {
+        const names = [], roles = {};
+        for (const e of arr) {
+          if (!e || typeof e !== 'object') continue;
+          const name = clean(e.name);
+          if (!name || /bulunam/i.test(name) || missing(name)) continue;
+          if (!names.includes(name)) names.push(name);
+          const role = clean(e.role);
+          if (role && !/bulunam/i.test(role)) roles[name] = role;
+        }
+        return { names, roles };
+      }
+    } catch (_) { /* bozuk JSON: asagida virgul yoluna dusulur */ }
+  }
+  return { names: splitPeople(v), roles: {} };
+}
 function safeUrl(value) {
   const v = clean(value);
   if (/^https?:\/\//i.test(v)) return v;
@@ -506,6 +536,8 @@ function makeItems(type, headers, rows) {
         turkishPublishDate: get('turkishPublishDate'),
       });
     } else if (type === 'films') {
+      /* 05.10.2026 v1.31: oyuncular JSON biciminden cozulur (ad + rol). */
+      const castParsed = parseCast(get('cast'));
       Object.assign(item, {
         watchCountRaw: get('watchCount'),
         watchCount: numberValue(get('watchCount')),
@@ -526,8 +558,10 @@ function makeItems(type, headers, rows) {
         countries: splitList(get('country')),
         directorOrigin: get('directorOrigin'),
         /* Yeni sutunlar. cast en fazla 243 kisi olabiliyor; site 5'ini
-           gosterip gerisini "devamını gör" butonuna sakliyor. */
-        cast: splitPeople(get('cast')),
+           gosterip gerisini "devamını gör" butonuna sakliyor.
+           05.10.2026: castRoles = ad -> rol haritasi (cip baloncugu). */
+        cast: castParsed.names,
+        castRoles: castParsed.roles,
         screenplay: splitPeople(get('screenplay')),
         story: splitPeople(get('story')),
         languageRaw: get('language'),
@@ -545,6 +579,8 @@ function makeItems(type, headers, rows) {
       const doneValue = clean(get('done'));
       const statusValue = clean(get('status'));
       const watchedValue = clean(get('watched'));
+      /* 05.10.2026 v1.31: oyuncular JSON biciminden cozulur (ad + rol). */
+      const castParsed = parseCast(get('cast'));
       const ongoing = /sürüyor|devam|izleniyor/i.test(statusValue) || /sürüyor|devam|izleniyor/i.test(doneValue);
       const done = /evet|yes|true/i.test(doneValue);
       const unwatched = /hiç|yok|izlenmedi/i.test(watchedValue);
@@ -566,7 +602,8 @@ function makeItems(type, headers, rows) {
         watched: get('watched'),
         countryRaw: get('country'),
         countries: splitList(get('country')),
-        cast: splitPeople(get('cast')),
+        cast: castParsed.names,
+        castRoles: castParsed.roles,
         statusRaw: get('status'),
         originalTitle: get('originalTitle'),
         altTitle: get('altTitle'),
