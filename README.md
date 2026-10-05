@@ -2704,4 +2704,25 @@ Film ve dizi detay sayfaları, veri dosyaları, veri
 - `FILTER_TITLES`'dan ölü anahtarlar silindi: `directorOrigin`, `medium`, `density`, `adaptation`, `rewatch`
 - `fieldValues` fonksiyonuna series için `category` alanı eklendi (Medium filtre linkleri artık çalışıyor)
 
-**Sonuç:** Veri üretimi daha hızlı, detay sayfalarında boş satır kalmadı, filtre çipleri tutarlı.
+**Sonuç:** Veri üretimi daha hızlı, detay sayfalarında boş satır kalmadı, filtre çipleri tutarlı.## v1.41 deÄŸiÅŸiklikleri
+
+### Anasayfa kart gÃ¶rÃ¼nÃ¼mÃ¼: daha fazla nefes alanÄ±
+
+Anasayfadaki "Favoriler", "Son okuduklarÄ±m", "Son izlediklerim",
+"Playlistler" bÃ¶lÃ¼mlerinin kart Ä±zgaralarÄ± artÄ±k `.home-grid`
+sÄ±nÄ±fÄ±nÄ± kullanÄ±yor. Liste sayfalarÄ± (`/film`, `/dizi`, `/kitap`,
+`/ara`, filtre sayfalarÄ±) **eski `.grid` aralÄ±klarÄ±nÄ± koruyor**.
+
+**DeÄŸiÅŸiklikler (sadece anasayfa):**
+- SatÄ±r aralÄ±ÄŸÄ±: 1.7rem â†’ **2.2rem** (masaÃ¼stÃ¼), 1.4rem (mobil)
+- SÃ¼tun aralÄ±ÄŸÄ±: 1.3rem â†’ **1.6rem** (masaÃ¼stÃ¼), 0.9rem (mobil)
+- Kapak geniÅŸliÄŸi: %100 â†’ **%92** (hafif daha dar, ortalanmÄ±ÅŸ)
+- Kart intrinsic height: 300px â†’ **280px** (biraz daha kompakt)
+
+**SonuÃ§:** Anasayfa kartlarÄ± birbirine daha az yapÄ±ÅŸÄ±k, liste
+sayfalarÄ±yla gÃ¶rsel olarak ayrÄ±lmÄ±ÅŸ duruyor. "Rastgele" bÃ¶lÃ¼mÃ¼
+ve diÄŸer sayfalar eski yoÄŸunluÄŸu koruyor.
+
+### Etkilenen fonksiyonlar
+- `favRow()`, `playlistFavRow()`, `recentRow()` â†’ `.grid.home-grid`
+- CSS: `.home-grid`, `.home-grid .cover`, `.home-grid .poster-card`
