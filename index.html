@@ -341,6 +341,20 @@ kbd{font-family:var(--ui);font-size:.72rem;background:var(--well);border:1px sol
 .film-details .detail-value-chips{gap:.7rem}
 
 .tag-result-section{margin-top:1.6rem}
+
+/* 05.10.2026 v1.31: arama sonuclarinin solunda kategori filtresi.
+   Terimin gectigi kategoriler kayit sayisiyla listelenir; en cok sonuc
+   veren kategori en ustte. Tiklanan kategoriyle sonuclar suzulur,
+   ayni kategoriye ikinci tik filtreyi kaldirir. */
+.search-body{display:flex;gap:2.2rem;align-items:flex-start;margin-top:1.6rem}
+.search-filter{flex:none;width:150px;display:flex;flex-direction:column;gap:.15rem;position:sticky;top:70px}
+.sf-btn{display:flex;justify-content:space-between;align-items:baseline;gap:.9rem;width:100%;padding:.32rem .55rem;border:1px solid transparent;background:none;color:var(--muted);font-family:var(--ui);font-size:.88rem;line-height:1.35;text-align:left;cursor:pointer;border-radius:8px;transition:color .15s,border-color .15s,background .15s}
+.sf-btn:hover{color:var(--text);border-color:var(--line-ctl)}
+.sf-btn.is-on{color:var(--text);background:var(--well);border-color:var(--line-ctl);box-shadow:inset 0 2px 3px var(--sh2)}
+.sf-count{font-size:.78rem;color:var(--muted)}
+#search-results{flex:1;min-width:0}
+#search-results .tag-result-section:first-child{margin-top:0}
+@media (max-width:700px){.search-body{flex-direction:column;gap:.9rem}.search-filter{position:static;width:100%;flex-direction:row;flex-wrap:wrap;gap:.25rem .4rem}.sf-btn{width:auto}}
 .detail-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.4rem;margin-top:2rem}
 .detail-section{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem 1.1rem;box-shadow:inset 0 1px 0 var(--hi)}
 .detail-section h2{font-size:1.25rem;border-bottom:1px solid var(--line);padding-bottom:.45rem;margin-bottom:.45rem}
@@ -1036,21 +1050,48 @@ function searchQuery(){
   try{return new URLSearchParams(at<0?raw:raw.slice(at+1)).get('q')||''}catch(_){return ''}
 }
 /** Tum turlerde ayni anda arar; once tam eslesen ad, sonra baslayan ad, sonra icerenler. */
-function searchSections(q){
+/* 05.10.2026 v1.31: searchSections artik kategori bazli sayim da doner
+   (groups) ve istenirse tek kategoriye suzulur (only). Aktif filtre
+   (searchFilter) sonuc vermiyorsa kendiliginden kalkar. */
+let searchFilter='';
+function searchSections(q,only){
   const needle=foldText(String(q||'').trim());
-  if(!needle)return {html:'',total:0};
+  if(!needle)return {html:'',total:0,groups:[],active:''};
   const rank=name=>name===needle?0:name.startsWith(needle)?1:2;
-  let total=0;
-  const html=SEARCH_GROUPS.map(([type,label])=>{
+  const found=SEARCH_GROUPS.map(([type,label])=>{
     const list=(D[type]||[]).filter(item=>item.searchText.includes(needle)).sort((a,b)=>{
       const an=foldText(displayName(a)),bn=foldText(displayName(b));
       return rank(an)-rank(bn)||an.localeCompare(bn,'tr');
     });
-    if(!list.length)return '';
-    total+=list.length;
-    return `<section class="tag-result-section"><div class="sh"><h2>${label}</h2><span class="sub">${list.length.toLocaleString('tr-TR')} kayıt</span></div><div class="grid">${list.map(poster).join('')}</div></section>`;
+    return {type,label,list};
+  });
+  const groups=found.map(g=>({type:g.type,label:g.label,count:g.list.length}));
+  let active=only||'';
+  if(active&&!found.some(g=>g.type===active&&g.list.length))active='';
+  let total=0;
+  const html=found.map(g=>{
+    if(!g.list.length)return '';
+    if(active&&g.type!==active)return '';
+    total+=g.list.length;
+    return `<section class="tag-result-section"><div class="sh"><h2>${g.label}</h2><span class="sub">${g.list.length.toLocaleString('tr-TR')} kayıt</span></div><div class="grid">${g.list.map(poster).join('')}</div></section>`;
   }).join('');
-  return {html,total};
+  return {html,total,groups,active};
+}
+/* Sol filtre menusu: terimin gectigi kategoriler, coktan aza sirali.
+   Tek kategori varsa filtre gostermenin anlami yok. */
+function searchFilterHtml(groups,active){
+  const list=(groups||[]).filter(g=>g.count>0).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'tr'));
+  if(list.length<2)return '';
+  return list.map(g=>`<button type="button" class="sf-btn${active===g.type?' is-on':''}" data-sf="${g.type}" aria-pressed="${active===g.type?'true':'false'}"><span>${g.label}</span><span class="sf-count">${g.count.toLocaleString('tr-TR')}</span></button>`).join('');
+}
+/* Yazi yazarken ve filtre dugmelerine basarken ortak guncelleme. */
+function renderSearchResults(){
+  const found=searchSections(state.q,searchFilter);
+  searchFilter=found.active;
+  const box=$('#search-results'),info=$('#search-info'),filter=$('#search-filter');
+  if(box)box.innerHTML=found.html||(String(state.q).trim()?'<p class="empty">Bu sorguyla eşleşen kayıt yok.</p>':'');
+  if(info)info.innerHTML=searchInfo(state.q,found.total);
+  if(filter)filter.innerHTML=searchFilterHtml(found.groups,searchFilter);
 }
 function searchInfo(q,total){
   return String(q||'').trim()
@@ -1058,9 +1099,11 @@ function searchInfo(q,total){
     :'Film, dizi, kitap ve playlistlerde aynı anda arar. Kısayol: <kbd>/</kbd>';
 }
 function searchPage(){
-  const found=searchSections(state.q);
+  /* 05.10.2026 v1.31: sayfaya her giris onceki filtre olmadan baslar. */
+  searchFilter='';
+  const found=searchSections(state.q,searchFilter);
   document.title=(String(state.q).trim()||'Arama')+' - versucher';
-  main.innerHTML=`<h1>Arama</h1><div class="ctl search-ctl"><input id="sq" type="search" placeholder="Film, dizi, kitap, playlist, yazar, yönetmen, tür…" aria-label="Site genelinde ara" autocomplete="off" spellcheck="false" value="${esc(state.q)}"></div><p class="sub" id="search-info" style="margin-top:.9rem">${searchInfo(state.q,found.total)}</p><div id="search-results" style="margin-top:1.6rem">${found.html}</div>`;
+  main.innerHTML=`<h1>Arama</h1><div class="ctl search-ctl"><input id="sq" type="search" placeholder="Film, dizi, kitap, playlist, yazar, yönetmen, tür…" aria-label="Site genelinde ara" autocomplete="off" spellcheck="false" value="${esc(state.q)}"></div><p class="sub" id="search-info" style="margin-top:.9rem">${searchInfo(state.q,found.total)}</p><div class="search-body"><nav id="search-filter" class="search-filter" aria-label="Kategoriye göre filtrele">${searchFilterHtml(found.groups,searchFilter)}</nav><div id="search-results">${found.html}</div></div>`;
   const input=$('#sq');
   if(input){input.focus();input.setSelectionRange(input.value.length,input.value.length)}
 }
@@ -1342,10 +1385,13 @@ function personPath(name){
   const slug=personSlug(name);
   return slug?`/kisi/${slug}`:'';
 }
-function personChip(name){
+function personChip(name,tip){
   const path=personPath(name);
-  if(!path)return `<span class="tag-chip is-plain" title="Bu ad için adres üretilemiyor">${esc(name)}</span>`;
-  return `<a class="tag-chip" href="${esc(hrefFor(path))}" data-route="${esc(path)}">${esc(name)}</a>`;
+  /* 05.10.2026 v1.31: oyuncu ciplerinde rol adi, imlec cipin uzerine
+     gelince title baloncuguyla gorunur. tip yoksa v1.30 davranisi ayni. */
+  const t=tip?` title="${esc(tip)}"`:'';
+  if(!path)return `<span class="tag-chip is-plain"${t||' title="Bu ad için adres üretilemiyor"'}>${esc(name)}</span>`;
+  return `<a class="tag-chip" href="${esc(hrefFor(path))}" data-route="${esc(path)}"${t}>${esc(name)}</a>`;
 }
 /** "Devamını gör" butonu: 5'te fazla kisi varsa ilk 5i goster, gerisini gizle.
  *  Sheet'te film basina en cok 10 oyuncu var; 494 filmin 487'sinde buton
@@ -1356,10 +1402,14 @@ function peopleRow(label,item,field,limit){
      sira bas rolden yana (ilk 5 gosterilecek). Yalnizca tekrarlar elenir. */
   const names=[...new Set(fieldValues(item,field))];
   if(!names.length)return null;
+  /* 05.10.2026 v1.31: oyuncularda rol, castRoles haritasindan gelip cip
+     baloncuguna yazilir; diger kisi alanlari rolsuz kalir. */
+  const roles=field==='cast'?(item.castRoles||null):null;
+  const chip=name=>personChip(name,roles?roles[name]:'');
   const cap=limit||PEOPLE_PREVIEW;
-  const head=names.slice(0,cap).map(personChip).join('');
+  const head=names.slice(0,cap).map(chip).join('');
   if(names.length<=cap)return [label,`<div class="detail-value-chips">${head}</div>`];
-  const rest=names.slice(cap).map(personChip).join('');
+  const rest=names.slice(cap).map(chip).join('');
   return [label,`<div class="detail-value-chips people-block">${head}<span class="people-rest" hidden>${rest}</span><button type="button" class="people-more" data-people-more="1">devamını gör</button></div>`];
 }
 /** Kişinin oynadığı / yönettiği / yazdığı tüm işler (film + dizi). */
@@ -1763,15 +1813,20 @@ document.addEventListener('click',event=>{
     more.remove();
     return;
   }
+  /* 05.10.2026 v1.31: arama sonucu kategori filtresi. Secili kategoriye
+     ikinci tik filtreyi kaldirir (tum sonuclar geri gelir). */
+  const sf=event.target.closest('[data-sf]');
+  if(sf){
+    searchFilter=searchFilter===sf.dataset.sf?'':sf.dataset.sf;
+    renderSearchResults();
+    return;
+  }
 });
 document.addEventListener('input',event=>{
   if(event.target.id==='q'){state.q=event.target.value;state.page=1;fillGrid(state.route.view);return}
   if(event.target.id==='sq'){
     state.q=event.target.value;
-    const found=searchSections(state.q);
-    const box=$('#search-results'),info=$('#search-info');
-    if(box)box.innerHTML=found.html||(String(state.q).trim()?'<p class="empty">Bu sorguyla eşleşen kayıt yok.</p>':'');
-    if(info)info.innerHTML=searchInfo(state.q,found.total);
+    renderSearchResults();
     /* Adresi güncelle ki arama paylaşılabilir olsun; sayfa yeniden yüklenmesin.
        Yerelde rota hash'in içinde olduğu için korunur, yoksa rota kaybolur. */
     const q=String(state.q).trim();
