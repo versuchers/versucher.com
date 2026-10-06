@@ -2808,4 +2808,24 @@ tüm ilgili kayıtları filtreli bir sayfada gösterir.
 
 **Not:** Yerel veri eski format olduğu için yerel testte film "ABD" tıklaması
 kitap göstermiyor (yerel kitaplarda "Amerikan" yazıyor); sonraki build'de
-canlı veri uyumlu hale gelecek.
+canlı veri uyumlu hale gelecek.## v1.48 değişiklikleri
+
+### "Ülke" ve "Tüketilen şehir" ayrı varlık türlerine bölündü
+
+**Önceki (v1.47):** ulke hem ülkeyi hem şehri kapsıyordu (film: country+firstCity,
+kitap: authorOrigin+city).
+
+**Yeni (v1.48):**
+- **/varlik/ulke/<slug>** → Sadece **Ülke**: film/dizi country (Yapım Ülkesi),
+  kitap uthorOrigin (Ülke)
+- **/varlik/sehir/<slug>** → **Tüketilen şehir**: film/dizi irstCity (İlk izlediğim şehir),
+  kitap city (Okuduğum Şehir)
+
+**Detay sayfalarındaki linkler:**
+- Film/Dizi "Yapım ülkesi" → /varlik/ulke/...
+- Film/Dizi "İlk izlediğim şehir" → /varlik/sehir/...
+- Kitap "Ülke" → /varlik/ulke/...
+- Kitap "Okuduğum Şehir" → /varlik/sehir/...
+
+Örnek: Film "ABD" → sadece filmler+diziler (349+103).
+Kitap "Zonguldak" (Okuduğum Şehir) → "Tüketilen şehir: Zonguldak" (film 220+dizi 98+kitap 89).
