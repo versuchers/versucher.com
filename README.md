@@ -2754,4 +2754,18 @@ Liste sayfaları ve Rastgele bolumu eski .grid degerlerini koruyor (27.2px / 20.
 0-1 puanlı kayıtlar da **1 ⭐** gösterir (puan varsa).
 Puan yoksa — gösterir.
 
-Etkilenen: stars() fonksiyonu → kartlar (.st), detay başlığı (.stars), aria-label.
+Etkilenen: stars() fonksiyonu → kartlar (.st), detay başlığı (.stars), aria-label.## v1.44 değişiklikleri
+
+### Main Label / Ana Tema: "i" ve "ı" → "I" (büyük harf)
+
+CSS 	ext-transform:uppercase Türkçe localede "i" → "İ" (noktalı) yapıyordu.
+Artık JS 	rUpper() fonksiyonu ile:
+- "i" → "I" (noktasız)
+- "ı" → "I" 
+- Diğer harfler normal TR büyük harf kurallarıyla
+
+Etkilenen yerler:
+- Detay sayfası afiş altındaki main-label-row çipleri
+- /etiket (Ana Tema dizini) sayfasındaki liste öğeleri
+
+Örnek: "Gnostisizm" → "GNOSTISIZM", "Roman Uyarlaması" → "ROMAN UYARLAMASI", "Götik" → "GOTIK".
