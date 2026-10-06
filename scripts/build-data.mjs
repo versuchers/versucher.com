@@ -73,15 +73,12 @@ const SCHEMAS = {
     city: ['okuduğum şehir', 'ilk okunan şehir'],
     readLanguage: ['okuduğum dil', 'okunduğu dil'],
     writtenLanguage: ['orijinal dili', 'yazıldığı dil'],
-    authorScore: ['yazar puanım', 'yazar puanı', 'yazar puan'],
     pages: ['sayfa sayısı'],
     reread: ['tekrar okur muyum', 'tekrar okur muyum?'],
     readCount: ['kaç kez okudum', 'kaç kez okundu'],
-    authorBirth: ['yazar doğum yılı', 'yazar doğum tarihi'],
     originalDate: ['orijinal basım yılı', 'orijinal yayın yılı', 'orijinal yayın tarihi'],
     turkishPublishDate: ['türçe ilk basım yılı', 'türkiye yayın yılı', 'türkiye yayın yili', 'türkiye yayın tarihi', 'türkiye yayın. tarihi'],
-    firstReadDate: ['okuduğum yıl', 'ilk okuduğum yıl', 'ilk kez okunan tarihi', 'ilk kez okunduğu tarih'],
-    density: ['yoğunluk']
+    firstReadDate: ['okuduğum yıl', 'ilk okuduğum yıl', 'ilk kez okunan tarihi', 'ilk kez okunduğu tarih']
   },
   films: {
     homeOrder: ['anasayfa sıra', 'anasayfa sıralama'],
@@ -159,8 +156,6 @@ const SCHEMAS = {
 
 const ROUTE_PREFIX = { books: 'kitap', films: 'film', series: 'dizi', playlists: 'playlist' };
 
-/** Sheets'te 1-5 olarak tutulan anket sütunlarının okunur karşılıkları. */
-const DENSITY_LABELS = { 1: 'Çok Düşük', 2: 'Düşük', 3: 'Orta', 4: 'Yüksek', 5: 'Çok Yüksek' };
 const REREAD_LABELS = { 1: 'Hayır', 2: 'Düşük İhtimalle', 3: 'Belki', 4: 'Muhtemelen', 5: 'Kesinlikle' };
 
 /** 1-5 (veya "3 (orta)" gibi) değerleri etikete çevirir; tanınmazsa ham metni korur. */
@@ -472,7 +467,6 @@ function makeItems(type, headers, rows) {
       sec: type,
       rowIndex: items.length,
       homeOrder: numberValue(get('homeOrder')),
-      density: scaleLabel(get('density'), DENSITY_LABELS),
       title,
       year: yearRaw,
       yearNumber: yearValue(yearRaw),
@@ -505,14 +499,11 @@ function makeItems(type, headers, rows) {
         city: get('city'),
         readLanguage: get('readLanguage'),
         writtenLanguage: get('writtenLanguage'),
-        authorScoreRaw: get('authorScore'),
-        authorScore: numberValue(get('authorScore')),
         pages: get('pages'),
         rereadRaw: get('reread'),
         reread: scaleLabel(get('reread'), REREAD_LABELS),
         readCountRaw: get('readCount'),
         readCount: numberValue(get('readCount')),
-        authorBirth: get('authorBirth'),
         turkishPublishDate: get('turkishPublishDate'),
       });
     } else if (type === 'films') {
