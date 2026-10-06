@@ -524,8 +524,8 @@ function integerValue(value){const n=numberValue(value);return n==null?null:Math
 function yearValue(value){const m=clean(value).match(/(?:18|19|20|21)\d{2}/);return m?Number(m[0]):null}
 function stars(value){
   const n=numberValue(value);if(n==null)return '';
-  const half=Math.round(n)/2,full=Math.floor(half),rest=half-full;
-  return '★'.repeat(full)+(rest>=.4?'½':'');
+  const count=Math.max(1,Math.floor(n/2));
+  return '⭐'.repeat(count);
 }
 function scoreHtml(item){
   return item.score==null?'—':`<span class="stars">${esc(stars(item.score))}</span>`;
