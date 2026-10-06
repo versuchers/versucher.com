@@ -463,6 +463,17 @@ const ROUTE_PREFIX={books:'kitap',films:'film',series:'dizi',playlists:'playlist
    film/dizi sutunlari ayni kaldigi icin ortak
    alanlar degismedi. */
 const FILTER_TITLES={author:'Yazar Adı',genre:'Tür',subgenre:'Alt Tür',authorOrigin:'Yazar Ülke',fiction:'Eser Türü',city:'Okuduğum Şehir',acquisition:'Erişim Şeklim',formats:'Okuduğum Format',translator:'Çevirmen',publisher:'Yayınevi',platform:'İlk kez hangi platformda',writtenLanguage:'Orijinal Dili',language:'Dil',director:'Yönetmen',firstCity:'İlk kez izlenen şehir',country:'Yapım ülkesi',reason:'Nasıl keşfettim / neden izledim',done:'Bitirildi mi?',category:'Kategori',feeling:'His',creator:'Creator / showrunner',network:'Network',format:'Format',reasonFound:'Nasıl keşfettim',sourceWork:'Kaynak eser',sourceAuthor:'Kaynak yazar'};
+
+/* 06.10.2026 v1.46: Varlık türleri — hangi metadata alanları entity sayfası
+   olur ve hangi field'a bakarlar (tür başına farklı field olabilir). */
+const ENTITY_TYPES={
+  kisi:{field:'kisi',label:'Kişi'},
+  platform:{field:'platform',label:'Platform',filmField:'platform',seriesField:'platform',bookField:'acquisition'},
+  dil:{field:'dil',label:'Dil',filmField:'language',seriesField:'language',bookField:'writtenLanguage'},
+  ulke:{field:'ulke',label:'Ülke',filmField:'country',seriesField:'country',bookField:'city'},
+  yayinevi:{field:'yayinevi',label:'Yayınevi',bookField:'publisher'},
+  kategori:{field:'kategori',label:'Kategori',filmField:'genre',seriesField:'genre',bookField:'genre'}
+};
 /* Navbar'da "Ana sayfa" YOK: site basligi zaten ana sayfaya gidiyor.
    Bu yuzden NAV icinde 'home' anahtari kalmadi. hrefForView()'in 'home'
    dalini (view==='home' ? '/' : ...) SILMEDIK: go('home') ile rota uretimi
@@ -788,6 +799,9 @@ function parseRoute(){
   /* Kisi sayfasi: /kisi/<slug>. Oyuncu, yonetmen, senaryo ve hikaye yazari
      adlarinin hepsi buraya gider. */
   if(first==='kisi'&&parts[1])return {kind:'person',slug:parts.slice(1).join('/')};
+  /* 06.10.2026 v1.46: Varlık sayfaları — her metadata alanı için genel
+     "entity" sayfası. /varlik/<entity-type>/<slug> */
+  if(first==='varlik'&&parts[1]&&parts[2])return {kind:'entity',entityType:parts[1],slug:parts.slice(2).join('/')};
   if(first==='ara')return {kind:'search'};
   if(['films','series','books','favs','lists'].includes(first)){
     const page=Number(parts[1]);
@@ -1561,6 +1575,95 @@ function personPage(slug){
     +(films.length?`<div class="sh"><h2>Filmler</h2></div><div class="niche"><div class="grid">${cards(films)}</div></div>`:'')
     +`<p class="empty"><a class="link" href="${esc(hrefFor('/yonetenler'))}" data-route="/yonetenler">Yönetmenler dizini</a> · <a class="link" href="${esc(hrefFor('/yazarlar'))}" data-route="/yazarlar">Yazarlar dizini</a></p>`;
 }
+/* 06.10.2026 v1.46: Genel varlık sayfası — her metadata alanı için
+   filtreli liste (sol filtre: Film / Dizi / Kitap). */
+function entityPage(route){
+  const {entityType,slug}=route;
+  const cfg=ENTITY_TYPES[entityType];
+  if(!cfg){notFound(slug);return}
+  let value='';
+  /* Kisi için özel: tüm kişi alanlarında aranır */
+  if(entityType==='kisi'){
+    for(const type of ['films','series','books']){
+      for(const item of D[type]||[]){
+        for(const field of ['cast','director','screenplay','story','creator','author','translator']){
+          const vals=fieldValues(item,field);
+          for(const v of vals){
+            if(slugPart(v)===slug){value=v;break}
+          }
+          if(value)break;
+        }
+        if(value)break;
+      }
+      if(value)break;
+    }
+  }else{
+    /* Diğer türler için: tür başına doğru field kullanılır */
+    const typeFields={films:cfg.filmField||cfg.field,series:cfg.seriesField||cfg.field,books:cfg.bookField||cfg.field};
+    for(const type of ['films','series','books']){
+      const field=typeFields[type];
+      if(!field)continue;
+      for(const item of D[type]||[]){
+        const vals=fieldValues(item,field);
+        for(const v of vals){
+          if(slugPart(v)===slug){value=v;break}
+        }
+        if(value)break;
+      }
+      if(value)break;
+    }
+  }
+  if(!value){notFound(slug);return}
+  document.title=`${cfg.label}: ${value} — versucher`;
+  /* Tüm kayıtları topla ve tür gruplarına ayır */
+  const groups=[['films','Filmler'],['series','Diziler'],['books','Kitaplar']];
+  const byType={};
+  if(entityType==='kisi'){
+    /* Kisi için: tüm kişi alanlarında ara */
+    for(const [type,label] of groups){
+      const list=(D[type]||[]).filter(item=>{
+        for(const field of ['cast','director','screenplay','story','creator','author','translator']){
+          if(fieldValues(item,field).some(v=>v===value))return true;
+        }
+        return false;
+      });
+      if(list.length)byType[type]=list;
+    }
+  }else{
+    /* Diğer türler için: tek field'da ara */
+    const typeFields={films:cfg.filmField||cfg.field,series:cfg.seriesField||cfg.field,books:cfg.bookField||cfg.field};
+    for(const [type,label] of groups){
+      const field=typeFields[type];
+      if(!field)continue;
+      const list=(D[type]||[]).filter(item=>fieldValues(item,field).some(v=>v===value));
+      if(list.length)byType[type]=list;
+    }
+  }
+  /* Aktif filtre (localStorage) */
+  const activeKey='entity-filter:'+entityType+':'+slug;
+  let active='';
+  try{active=localStorage.getItem(activeKey)||''}catch(_){}
+  const sections=groups.map(([type,label])=>{
+    const list=byType[type]||[];
+    if(!list.length)return '';
+    if(active&&type!==active)return '';
+    const cards=list.map(item=>poster(item,'','')).join('');
+    return `<section class="tag-result-section"><div class="sh"><h2>${label}</h2><span class="sub">${list.length.toLocaleString('tr-TR')} kayıt</span></div><div class="grid">${cards}</div></section>`;
+  }).join('');
+  const filterHtml=groups.map(([type,label])=>{
+    const count=(byType[type]||[]).length;
+    if(!count)return '';
+    return `<button type="button" class="sf-btn${active===type?' is-on':''}" data-entity-filter="${type}" data-entity-type="${entityType}" data-entity-slug="${slug}" aria-pressed="${active===type?'true':'false'}"><span>${label}</span><span class="sf-count">${count.toLocaleString('tr-TR')}</span></button>`;
+  }).join('');
+  const summary=groups.map(([type,label])=>{
+    const count=(byType[type]||[]).length;
+    return count?`${label} ${count}`:null;
+  }).filter(Boolean).join(' · ');
+  main.innerHTML=`<a class="back" href="${esc(hrefFor('/'))}" data-route="/">← Ana sayfa</a>`
+    +`<h1 style="margin-top:1rem">${esc(cfg.label)}: ${esc(value)}</h1>`
+    +`<p class="sub">${esc(summary)}</p>`
+    +(filterHtml?`<div class="search-body" style="margin-top:1rem"><nav class="search-filter">${filterHtml}</nav><div id="search-results">${sections}</div></div>`:sections);
+}
 function mainLabelChips(item){
   return unique(fieldValues(item,'mainLabel')).map(value=>{
     const slug=globalTagSlug(value),path=slug?`/etiket/${slug}`:'';
@@ -1576,9 +1679,31 @@ function extLinks(pairs){
   const html=pairs.map(pair=>extLink(pair[0],pair[1])).filter(Boolean).join('');
   return html?`<div class="ext-links">${html}</div>`:'';
 }
+/* 06.10.2026 v1.46: Hangi field'lar entity sayfasına link verir?
+   Diğerleri eski filter linkine gider. */
+const ENTITY_FIELD_MAP={
+  platform:'platform',language:'dil',country:'ulke',
+  director:'kisi',author:'kisi',translator:'kisi',publisher:'yayinevi',
+  creator:'kisi',network:'yayinevi',sourceAuthor:'kisi',sourceWork:'kisi',
+  genre:'kategori',subgenre:'kategori',fiction:'kategori',
+  city:'ulke',acquisition:'platform',formats:'platform',
+  writtenLanguage:'dil',readLanguage:'dil',
+  firstCity:'ulke'
+};
 function chipRow(label,item,field){
   const chips=fieldChips(item,field);
-  return chips?[label,`<div class="detail-value-chips">${chips}</div>`]:null;
+  if(!chips)return null;
+  const entityType=ENTITY_FIELD_MAP[field];
+  if(entityType){
+    const values=unique(fieldValues(item,field));
+    const links=values.map(value=>{
+      const slug=slugPart(value);
+      const path=slug?`/varlik/${entityType}/${slug}`:'';
+      return path?`<a class="link-chip" href="${esc(hrefFor(path))}" data-route="${esc(path)}">${esc(value)}</a>`:`<span class="link-chip">${esc(value)}</span>`;
+    }).join('');
+    return [label,`<div class="detail-value-chips">${links}</div>`];
+  }
+  return [label,`<div class="detail-value-chips">${chips}</div>`];
 }
 function findFilterValue(type,field,slug){
   for(const item of D[type]||[])for(const value of fieldValues(item,field))if(routeValueSlug(type,field,value)===slug)return value;
@@ -1867,6 +1992,7 @@ function renderPage(){
   if(state.route.kind==='authorsIndex'){authorIndexView();return}
   if(state.route.kind==='directorsIndex'){directorIndexView();return}
   if(state.route.kind==='person'){personPage(state.route.slug);return}
+  if(state.route.kind==='entity'){entityPage(state.route);return}
   if(state.route.kind==='genre'){genrePage(state.route);return}
   if(state.route.kind==='genreIndex'){genreIndexView();return}
   if(state.route.kind==='search'){state.q=searchQuery();searchPage();return}
@@ -1946,6 +2072,20 @@ document.addEventListener('click',event=>{
   if(sf){
     searchFilter=searchFilter===sf.dataset.sf?'':sf.dataset.sf;
     renderSearchResults();
+    return;
+  }
+  /* 06.10.2026 v1.46: Varlık sayfası filtreleri — localStorage'a kaydedilir,
+     sayfa yeniden yüklenince korunur. */
+  const ef=event.target.closest('[data-entity-filter]');
+  if(ef){
+    const entityType=ef.dataset.entityType;
+    const slug=ef.dataset.entitySlug;
+    const key='entity-filter:'+entityType+':'+slug;
+    const current=localStorage.getItem(key)||'';
+    const next=current===ef.dataset.entityFilter?'':ef.dataset.entityFilter;
+    try{localStorage.setItem(key,next)}catch(_){}
+    /* Sayfayı yeniden yükle (filtre değişti) */
+    navigate(`/varlik/${entityType}/${slug}`,true);
     return;
   }
 });
