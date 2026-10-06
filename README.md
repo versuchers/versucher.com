@@ -2828,4 +2828,25 @@ kitap: authorOrigin+city).
 - Kitap "Okuduğum Şehir" → /varlik/sehir/...
 
 Örnek: Film "ABD" → sadece filmler+diziler (349+103).
-Kitap "Zonguldak" (Okuduğum Şehir) → "Tüketilen şehir: Zonguldak" (film 220+dizi 98+kitap 89).
+Kitap "Zonguldak" (Okuduğum Şehir) → "Tüketilen şehir: Zonguldak" (film 220+dizi 98+kitap 89).## v1.49 değişiklikleri
+
+### Kod temizliği (ölü şema alanları ve gösterilmeyen veriler silindi)
+
+**Silinen ölü şema alanları (build-data.mjs):**
+- density (books/films/series) — Sheet'te sütun yok, hiçbir kayıtta dolu değil
+- eason (books/films/series) — Sheet'te bölünmüş reasonFound/reasonWhy olarak var
+- seriesScore (books) — Sheet'te sütun yok
+- genreMain (films) — Sheet'te sütun yok
+- directorOrigin (films) — Sheet'te "Yönetmen Ülkesi" var ama alias uyuşmuyor
+- downloaded (films) — Sheet'te sütun yok
+- daptation (films/series) — Sheet'te sütun yok (v1.35'te kaldırıldı)
+- ewatch (films/series) — Sheet'te sütun yok
+- 	mdbId (films) — Schema'da yok
+- uthorScore / uthorScoreRaw / uthorBirth (books) — Dolu ama gösterilmiyordu
+
+**Silinen kullanılmayan sabit:** DENSITY_LABELS
+
+**Korunan:** story (films) — 65/494 dolu ve detay sayfasında gösteriliyor.
+
+**Sonuç:** Veri üretimi hafifledi, gereksiz alanlar temizlendi. 
+Playlists Sheet 404 durumu **elle tutulmadı** (güncellenmezse böyle kalsın).
