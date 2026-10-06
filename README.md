@@ -2734,4 +2734,24 @@ ve diÄŸer sayfalar eski yoÄŸunluÄŸu koruyor.
 - Tablet (<=900px): 1.3rem / 0.85rem
 - Mobil (<=700px): 1.05rem / 0.7rem
 
-Liste sayfaları ve Rastgele bolumu eski .grid degerlerini koruyor (27.2px / 20.8px).
+Liste sayfaları ve Rastgele bolumu eski .grid degerlerini koruyor (27.2px / 20.8px).## v1.43 değişiklikleri
+
+### Yıldız puan gösterimi: emoji ⭐ + floor + min 1
+
+**Eski:** ★★★★½ (Unicode, yarım yıldız destekli)
+**Yeni:** ⭐⭐⭐ (emoji, tam yıldız, floor + en az 1)
+
+**Kural:** Math.max(1, Math.floor(score / 2))
+
+| 10'luk puan | 5'lik | Gösterim |
+|-------------|-------|----------|
+| 9-10        | 4.5-5 | ⭐⭐⭐⭐ (4) |
+| 7-8         | 3.5-4 | ⭐⭐⭐⭐ (4) |
+| 5-6         | 2.5-3 | ⭐⭐⭐ (3) |
+| 3-4         | 1.5-2 | ⭐⭐ (2) |
+| 1-2         | 0.5-1 | ⭐ (1) **min 1** |
+
+0-1 puanlı kayıtlar da **1 ⭐** gösterir (puan varsa).
+Puan yoksa — gösterir.
+
+Etkilenen: stars() fonksiyonu → kartlar (.st), detay başlığı (.stars), aria-label.
