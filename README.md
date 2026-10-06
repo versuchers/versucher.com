@@ -2768,4 +2768,27 @@ Etkilenen yerler:
 - Detay sayfası afiş altındaki main-label-row çipleri
 - /etiket (Ana Tema dizini) sayfasındaki liste öğeleri
 
-Örnek: "Gnostisizm" → "GNOSTISIZM", "Roman Uyarlaması" → "ROMAN UYARLAMASI", "Götik" → "GOTIK".
+Örnek: "Gnostisizm" → "GNOSTISIZM", "Roman Uyarlaması" → "ROMAN UYARLAMASI", "Götik" → "GOTIK".## v1.46 değişiklikleri
+
+### Varlık sayfaları sistemi (entity pages)
+
+Detay sayfalarındaki metadata linkleri artık /varlik/<tur>/<slug> adresine gider ve
+tüm ilgili kayıtları filtreli bir sayfada gösterir.
+
+**Yeni rotalar:**
+- /varlik/kisi/<slug> — Kişi (oyuncu, yönetmen, yazar, creator, çevirmen...)
+- /varlik/platform/<slug> — Platform (Netflix, Amazon, satın aldığım...)
+- /varlik/dil/<slug> — Dil (İngilizce, Türkçe, Japonca...)
+- /varlik/ulke/<slug> — Ülke/Şehir (ABD, Zonguldak...)
+- /varlik/yayinevi/<slug> — Yayınevi
+- /varlik/kategori/<slug> — Kategori/Tür
+
+**Her sayfa:**
+- **Sol:** Filtre (Film / Dizi / Kitap) — arama sayfası gibi
+- **Sağ:** İlgili kayıtlar (tıklanan tür öncelikli)
+- **Filtre kalıcılığı:** localStorage'da saklanır
+
+**Etkilenen alanlar (detay sayfaları):**
+- Filmler: Tür, Kaynak eser/yazar, Yapım ülkesi, Dil, Yönetmen, İlk izlediğim platform, İlk izlediğim şehir
+- Diziler: Tür, Kaynak eser/yazar, Yapım ülkesi, Creator/showrunner, Format, Dili, Network, İlk izlediğim platform, İlk izlediğim şehir
+- Kitaplar: Yazar Adı, Çevirmen, Yayınevi, Eser Türü, Ana Tür, Alt Tür, Orijinal Dili, Erişim Şeklim, Okuduğum Şehir, Okuduğum Format, Okuduğum Dil
