@@ -65,7 +65,9 @@ const SCHEMAS = {
     acquisition: ['erişim şeklim', 'ilk erişim / edinim şekli'],
     genre: ['ana tür', 'tür'],
     subgenre: ['alt tür'],
-    authorOrigin: ['yazar ülke', 'yazar köken', 'yazar ülkesi'],
+    /* 06.10.2026 v1.47: sutun "Yazar Ülke" -> "Ülke" olarak yeniden
+       adlandi; yeni ad basa alindi, eskiler guvenlik icin duruyor. */
+    authorOrigin: ['ülke', 'yazar ülke', 'yazar köken', 'yazar ülkesi'],
     fiction: ['eser türü', 'kurgu mu', 'kurgu mu?'],
     owned: ['kitap bende var mı', 'kitap bende var mı?'],
     city: ['okuduğum şehir', 'ilk okunan şehir'],
