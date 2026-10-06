@@ -470,7 +470,12 @@ const ENTITY_TYPES={
   kisi:{field:'kisi',label:'Kişi'},
   platform:{field:'platform',label:'Platform',filmField:'platform',seriesField:'platform',bookField:'acquisition'},
   dil:{field:'dil',label:'Dil',filmField:'language',seriesField:'language',bookField:'writtenLanguage'},
-  ulke:{field:'ulke',label:'Ülke',filmField:'country',seriesField:'country',bookField:'city'},
+  /* 06.10.2026 v1.47: ulke artik birden fazla alanda arar —
+     film/dizi: Yapım Ülkesi + İlk izlediğim şehir;
+     kitap: Ülke (yazar) + Okuduğum Şehir. Boylece "ABD" ulke sayfasinda
+     ABD'li yazarlarin kitaplari da, "Zonguldak" sayfasinda orada okunanlar
+     da cikar. */
+  ulke:{field:'ulke',label:'Ülke',filmField:['country','firstCity'],seriesField:['country','firstCity'],bookField:['authorOrigin','city']},
   yayinevi:{field:'yayinevi',label:'Yayınevi',bookField:'publisher'},
   kategori:{field:'kategori',label:'Kategori',filmField:'genre',seriesField:'genre',bookField:'genre'}
 };
@@ -1598,15 +1603,19 @@ function entityPage(route){
       if(value)break;
     }
   }else{
-    /* Diğer türler için: tür başına doğru field kullanılır */
+    /* Diğer türler için: tür başına doğru field kullanılır.
+       filmField/seriesField/bookField tekil veya DİZİ olabilir (v1.47:
+       ulke icin country + firstCity, kitap icin authorOrigin + city). */
     const typeFields={films:cfg.filmField||cfg.field,series:cfg.seriesField||cfg.field,books:cfg.bookField||cfg.field};
+    const fieldsOf=(type)=>[].concat(typeFields[type]||[]).filter(Boolean);
     for(const type of ['films','series','books']){
-      const field=typeFields[type];
-      if(!field)continue;
-      for(const item of D[type]||[]){
-        const vals=fieldValues(item,field);
-        for(const v of vals){
-          if(slugPart(v)===slug){value=v;break}
+      for(const field of fieldsOf(type)){
+        for(const item of D[type]||[]){
+          const vals=fieldValues(item,field);
+          for(const v of vals){
+            if(slugPart(v)===slug){value=v;break}
+          }
+          if(value)break;
         }
         if(value)break;
       }
@@ -1630,12 +1639,11 @@ function entityPage(route){
       if(list.length)byType[type]=list;
     }
   }else{
-    /* Diğer türler için: tek field'da ara */
+    /* Diğer türler için: field dizisinde ara */
     const typeFields={films:cfg.filmField||cfg.field,series:cfg.seriesField||cfg.field,books:cfg.bookField||cfg.field};
+    const fieldsOf=(type)=>[].concat(typeFields[type]||[]).filter(Boolean);
     for(const [type,label] of groups){
-      const field=typeFields[type];
-      if(!field)continue;
-      const list=(D[type]||[]).filter(item=>fieldValues(item,field).some(v=>v===value));
+      const list=(D[type]||[]).filter(item=>fieldsOf(type).some(field=>fieldValues(item,field).some(v=>v===value)));
       if(list.length)byType[type]=list;
     }
   }
@@ -1686,7 +1694,7 @@ const ENTITY_FIELD_MAP={
   director:'kisi',author:'kisi',translator:'kisi',publisher:'yayinevi',
   creator:'kisi',network:'yayinevi',sourceAuthor:'kisi',sourceWork:'kisi',
   genre:'kategori',subgenre:'kategori',fiction:'kategori',
-  city:'ulke',acquisition:'platform',formats:'platform',
+  city:'ulke',authorOrigin:'ulke',acquisition:'platform',formats:'platform',
   writtenLanguage:'dil',readLanguage:'dil',
   firstCity:'ulke'
 };
@@ -1848,6 +1856,9 @@ function detailPage(item){
         chipRow('Eser Türü',item,'fiction'),
         chipRow('Ana Tür',item,'genre'),
         chipRow('Alt Tür',item,'subgenre'),
+        /* 06.10.2026 v1.47: Sheet'teki "Ülke" sutunu (yazarin ulkesi)
+           artik detayda gorunur ve ulke varlik sayfasina gider. */
+        chipRow('Ülke',item,'authorOrigin'),
         chipRow('Orijinal Dili',item,'writtenLanguage'),
         row('Protagonist',item.character),
         ...publishDateRows(item),
