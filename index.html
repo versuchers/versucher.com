@@ -470,12 +470,11 @@ const ENTITY_TYPES={
   kisi:{field:'kisi',label:'Kişi'},
   platform:{field:'platform',label:'Platform',filmField:'platform',seriesField:'platform',bookField:'acquisition'},
   dil:{field:'dil',label:'Dil',filmField:'language',seriesField:'language',bookField:'writtenLanguage'},
-  /* 06.10.2026 v1.47: ulke artik birden fazla alanda arar —
-     film/dizi: Yapım Ülkesi + İlk izlediğim şehir;
-     kitap: Ülke (yazar) + Okuduğum Şehir. Boylece "ABD" ulke sayfasinda
-     ABD'li yazarlarin kitaplari da, "Zonguldak" sayfasinda orada okunanlar
-     da cikar. */
-  ulke:{field:'ulke',label:'Ülke',filmField:['country','firstCity'],seriesField:['country','firstCity'],bookField:['authorOrigin','city']},
+  /* 06.10.2026 v1.48: ulke ve sehir AYRILDI.
+     - ulke: film/dizi Yapım Ülkesi, kitap Ülke (yazar).
+     - sehir: film/dizi İlk izlediğim şehir, kitap Okuduğum Şehir. */
+  ulke:{field:'ulke',label:'Ülke',filmField:'country',seriesField:'country',bookField:'authorOrigin'},
+  sehir:{field:'sehir',label:'Tüketilen şehir',filmField:'firstCity',seriesField:'firstCity',bookField:'city'},
   yayinevi:{field:'yayinevi',label:'Yayınevi',bookField:'publisher'},
   kategori:{field:'kategori',label:'Kategori',filmField:'genre',seriesField:'genre',bookField:'genre'}
 };
@@ -1694,9 +1693,11 @@ const ENTITY_FIELD_MAP={
   director:'kisi',author:'kisi',translator:'kisi',publisher:'yayinevi',
   creator:'kisi',network:'yayinevi',sourceAuthor:'kisi',sourceWork:'kisi',
   genre:'kategori',subgenre:'kategori',fiction:'kategori',
-  city:'ulke',authorOrigin:'ulke',acquisition:'platform',formats:'platform',
+  authorOrigin:'ulke',acquisition:'platform',formats:'platform',
   writtenLanguage:'dil',readLanguage:'dil',
-  firstCity:'ulke'
+  /* 06.10.2026 v1.48: city ve firstCity artik "sehir" varligina gider,
+     "ulke" degil. */
+  city:'sehir',firstCity:'sehir'
 };
 function chipRow(label,item,field){
   const chips=fieldChips(item,field);
