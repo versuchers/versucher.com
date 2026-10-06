@@ -308,7 +308,7 @@ body.lb-open{overflow:hidden}
 /* Afişin altındaki main label kutusu: sitenin en belirgin vurgusu olmalı. */
 .main-label-row{gap:.45rem;margin-top:.9rem}
 .tag-chip.ml{
-  font-size:.8rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  font-size:.8rem;font-weight:700;letter-spacing:.09em;
   color:var(--accent);background:var(--raise);
   border:1px solid var(--accent);border-radius:10px;
   padding:.45rem .85rem;
@@ -526,6 +526,18 @@ function stars(value){
   const n=numberValue(value);if(n==null)return '';
   const count=Math.max(1,Math.floor(n/2));
   return '⭐'.repeat(count);
+}
+
+/** Türkçe büyük harfe çevirme: "i" -> "I" (noktasız), "ı" -> "I".
+ *  CSS text-transform:uppercase TR localede "i"->"İ" (noktalı) yapar;
+ *  bu fonksiyon "i" ve "ı"yı "I" yapar, diğerleri TR kurallarıyla büyütür. */
+function trUpper(value){
+  if(!value)return '';
+  return String(value)
+    .toLocaleLowerCase('tr-TR')
+    .replace(/i/g, 'ı')  // i -> ı (sonra TR uppercase ile I olacak)
+    .replace(/ı/g, 'ı')  // ı zaten ı
+    .toLocaleUpperCase('tr-TR'); // ı -> I, diğerleri normal
 }
 function scoreHtml(item){
   return item.score==null?'—':`<span class="stars">${esc(stars(item.score))}</span>`;
@@ -1227,7 +1239,7 @@ function indexGroup(title,list,toPath,unit){
 }
 function tagIndexView(){
   const values=['books','series','films'].flatMap(kind=>(D[kind]||[]).flatMap(item=>fieldValues(item,'mainLabel')));
-  const list=collectValues(values);
+  const list=collectValues(values).map(entry=>({...entry, value: trUpper(entry.value)}));
   const body=indexGroup('Main label',list,value=>{
     const slug=globalTagSlug(value);
     return slug?'/etiket/'+slug:'';
@@ -1552,7 +1564,7 @@ function personPage(slug){
 function mainLabelChips(item){
   return unique(fieldValues(item,'mainLabel')).map(value=>{
     const slug=globalTagSlug(value),path=slug?`/etiket/${slug}`:'';
-    return path?`<a class="tag-chip ml" href="${esc(hrefFor(path))}" data-route="${esc(path)}">${esc(value)}</a>`:'';
+    return path?`<a class="tag-chip ml" href="${esc(hrefFor(path))}" data-route="${esc(path)}">${esc(trUpper(value))}</a>`:'';
   }).join('');
 }
 /** Site disi sitelere giden linkler; ic baglantilardan gorunum olarak ayrilir. */
