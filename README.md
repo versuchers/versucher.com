@@ -2791,4 +2791,21 @@ tüm ilgili kayıtları filtreli bir sayfada gösterir.
 **Etkilenen alanlar (detay sayfaları):**
 - Filmler: Tür, Kaynak eser/yazar, Yapım ülkesi, Dil, Yönetmen, İlk izlediğim platform, İlk izlediğim şehir
 - Diziler: Tür, Kaynak eser/yazar, Yapım ülkesi, Creator/showrunner, Format, Dili, Network, İlk izlediğim platform, İlk izlediğim şehir
-- Kitaplar: Yazar Adı, Çevirmen, Yayınevi, Eser Türü, Ana Tür, Alt Tür, Orijinal Dili, Erişim Şeklim, Okuduğum Şehir, Okuduğum Format, Okuduğum Dil
+- Kitaplar: Yazar Adı, Çevirmen, Yayınevi, Eser Türü, Ana Tür, Alt Tür, Orijinal Dili, Erişim Şeklim, Okuduğum Şehir, Okuduğum Format, Okuduğum Dil## v1.47 değişiklikleri
+
+### Kitaplarda "Ülke" alanı + ülke varlık sayfasında kitaplar
+
+**Sheet değişimi:** "Yazar Ülke" sütunu → **"Ülke"** olarak yeniden adlandırıldı
+(değerler de uyumlu: "Amerikan" yerine "ABD" gibi ülke adları).
+
+**Yapılanlar:**
+- uild-data.mjs: uthorOrigin aliaslarına 'ülke' eklendi (eski adlar da duruyor)
+- Kitap detayına **"Ülke"** çipi eklendi (/varlik/ulke/<slug> linki)
+- ulke varlık sayfası artık kitaplarda uthorOrigin + city,
+  film/dizide country + irstCity alanlarının **hepsinde** arar
+- Sonuç: film detayında "ABD"ye tıklayınca ABD'li yazarların kitapları da,
+  kitap detayında "Zonguldak"a tıklayınca orada okunan kitaplar da görünür
+
+**Not:** Yerel veri eski format olduğu için yerel testte film "ABD" tıklaması
+kitap göstermiyor (yerel kitaplarda "Amerikan" yazıyor); sonraki build'de
+canlı veri uyumlu hale gelecek.
