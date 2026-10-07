@@ -86,7 +86,7 @@ const SCHEMAS = {
     score: ['puan'],
     year: ['yapım yılı'],
     pre: ['ön ek'],
-    mainLabel: ['main label'],
+    mainLabel: ['ana tema', 'main label'],
     reasonFound: ['nasıl keşfettim'],
     reasonWhy: ['neden izledim'],
     genre: ['tür', 'tür (letterboxd)', "tür (letterboxd'da yazanlar)"],
@@ -108,7 +108,9 @@ const SCHEMAS = {
     country: ['yapım ülkesi'],
     letterboxd: ['letterboxd linki'],
     tmdb: ['tmdb linki'],
-    imdb: ['imdb linki', 'imdb']
+    imdb: ['imdb linki', 'imdb'],
+    directorOrigin: ['yönetmen ülkesi', 'yönetmen köken', 'yönetmen nereli'],
+    yorum: ['yorum']
   },
   series: {
     homeOrder: ['anasayfa sıra', 'anasayfa sıralama'],
@@ -116,7 +118,7 @@ const SCHEMAS = {
     score: ['puan'],
     year: ['yapım yılı'],
     watchDate: ['başladığım yıl', 'başladığım tarih', 'izlenme tarihi'],
-    mainLabel: ['main label'],
+    mainLabel: ['ana tema', 'main label'],
     reasonFound: ['nasıl keşfettim'],
     reasonWhy: ['neden izledim'],
     favoriteSeason: ['favori sezon'],
@@ -540,7 +542,9 @@ function makeItems(type, headers, rows) {
         languages: splitList(get('language')),
         letterboxd: get('letterboxd'),
         tmdb: get('tmdb'),
-        imdb: safeUrl(get('imdb'))
+        imdb: safeUrl(get('imdb')),
+        directorOrigin: get('directorOrigin'),
+        yorum: get('yorum')
       });
     } else if (type === 'series') {
       const doneValue = clean(get('done'));

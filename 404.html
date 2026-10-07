@@ -427,6 +427,16 @@ kbd{font-family:var(--ui);font-size:.72rem;background:var(--well);border:1px sol
 .detail-page>.back{justify-self:start;width:fit-content;margin:0 0 .95rem}}
 @media (max-width:650px){.detail-row{grid-template-columns:1fr;gap:.1rem}.detail-row dt{font-size:15px}.shelf{columns:1}}
 @media (max-width:430px){.detail-sections{grid-template-columns:1fr}}
+
+/* 07.10.2026 v1.51: yorum/spoiler kutusu. */
+.yorum-section{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem 1.1rem;box-shadow:inset 0 1px 0 var(--hi);margin-top:1.4rem}
+.yorum-section h2{font-size:1.25rem;border-bottom:1px solid var(--line);padding-bottom:.45rem;margin-bottom:.45rem}
+.yorum-text{white-space:pre-wrap;line-height:1.65}
+.yorum-toggle{font-family:var(--ui);font-size:.88rem;background:var(--well);border:1px solid var(--line);color:var(--text);padding:.5rem .7rem;border-radius:6px;cursor:pointer;box-shadow:inset 0 2px 5px var(--sh1);margin-bottom:.6rem;display:inline-flex;align-items:center;gap:.4rem}
+.yorum-toggle:hover{color:var(--text)}
+.yorum-toggle .spoiler-icon{font-size:1rem}
+.yorum-hidden{display:none}
+.yorum-body{white-space:pre-wrap;line-height:1.65}
 </style>
 </head>
 <body>
@@ -697,6 +707,8 @@ function hydrate(item){
     item.adaptation,
     /* 05.10.2026 v1.35: kaynak eser/yazar adlari da aramada bulunsun. */
     item.sourceWork,item.sourceAuthor,
+    /* 07.10.2026 v1.51: yapim yili, izleme tarihi ve diller de aramada. */
+    item.year,item.watchDate,item.languages.join(' '),
     item.countries.join(' '),item.genres.join(' '),item.subgenres.join(' '),
     /* 03.10.2026 v1.30: kisi linkleri (Oyuncular/Senaryo/Hikaye) aranabilir;
        /kisi/<slug> sayfasinin gosterdigi ogeleri genel arama da bulsun. */
@@ -1743,6 +1755,23 @@ function detailSection(title,rows,className=''){
   /* Etiket icinde "||" iki satira bolunur: "Nasil kesfettim||neden izledim". */
   return `<section class="detail-section ${className}"><h2>${esc(title)}</h2><dl class="detail-list">${filtered.map(([label,value])=>`<div class="detail-row"><dt>${String(label).split('||').map(part=>esc(part)).join('<br>')}</dt><dd>${value}</dd></div>`).join('')}</dl></section>`;
 }
+/* 07.10.2026 v1.51: film yorumu. "spoiler var" ile basliyorsa acilir kutu;
+   "spoiler yok" ile basliyorsa dogrudan gosterilir. */
+function yorumSection(yorum){
+  const text=clean(yorum);
+  if(!text)return '';
+  const lower=text.toLocaleLowerCase('tr-TR');
+  const isSpoiler=lower.startsWith('spoiler var')||lower.startsWith('spoilerlı');
+  const isNoSpoiler=lower.startsWith('spoiler yok');
+  if(isSpoiler){
+    return `<section class="yorum-section"><h2>Yorum</h2><button class="yorum-toggle" id="yorum-toggle" aria-expanded="false"><span class="spoiler-icon">&#9654;</span> Spoiler'lı Yorumu Oku</button><div class="yorum-body yorum-hidden" id="yorum-body">${esc(text)}</div></section>`;
+  }
+  if(isNoSpoiler){
+    return `<section class="yorum-section"><h2>Yorum</h2><div class="yorum-body">${esc(text)}</div></section>`;
+  }
+  /* Herhangi bir spoiler etiketi yoksa dogrudan goster. */
+  return `<section class="yorum-section"><h2>Yorum</h2><div class="yorum-body">${esc(text)}</div></section>`;
+}
 function detailHeading(item){
   const fallback=item.yearNumber||item.year?`<span>${esc(item.yearNumber||item.year)}</span>`:'';
   const subline=item.sec==='books'?fieldChips(item,'author')
@@ -1917,6 +1946,8 @@ function detailPage(item){
         row('Kaç kez izledim',item.watchCountRaw)
       ],'film-details')
     ];
+    /* 07.10.2026 v1.51: film yorumu en altta, spoiler kontrolu ile. */
+    extra+=yorumSection(item.yorum);
   }else if(item.sec==='series'){
     sections=[
       detailSection('Dizi',[
@@ -2110,6 +2141,19 @@ document.addEventListener('click',event=>{
     try{localStorage.setItem(key,next)}catch(_){}
     /* Sayfayı yeniden yükle (filtre değişti) */
     navigate(`/varlik/${entityType}/${slug}`,true);
+    return;
+  }
+  /* 07.10.2026 v1.51: yorum spoiler toggle. */
+  const yorumToggle=event.target.closest('#yorum-toggle');
+  if(yorumToggle){
+    const body=$('#yorum-body');
+    if(body){
+      const isHidden=body.classList.contains('yorum-hidden');
+      body.classList.toggle('yorum-hidden');
+      yorumToggle.setAttribute('aria-expanded',String(isHidden));
+      yorumToggle.querySelector('.spoiler-icon').textContent=isHidden?'▼':'▶';
+      yorumToggle.childNodes[1].textContent=isHidden?' Yorumu Gizle':" Spoiler'lı Yorumu Oku";
+    }
     return;
   }
 });
