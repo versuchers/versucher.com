@@ -58,6 +58,8 @@ html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
 em,i,cite,dfn,var,address{font-style:normal}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.65;font-size:16px}
 button,input,select{font:inherit;color:inherit}
+/* 07.10.2026 v1.51: secili metin — koyu gri zemin, beyaz yazi. */
+::selection{background:#333333;color:#ffffff}
 /* 1) Baglantilar: alti cizgi YOK, uzerine gelince renk degisir. --link-hi her
    iki temada da --link'ten belirgin sekilde parlak; odunu satiri gibi duran
    baglantilari (film/dizi/kitap raf karti basliklari) ayirt etmek icin de
@@ -438,8 +440,9 @@ kbd{font-family:var(--ui);font-size:.72rem;background:var(--well);border:1px sol
    genisliginin %66'si kadar, sayfada ortalanir; baslik da ortalidir. */
 .yorum-section{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:1rem 2rem 1.1rem;box-shadow:inset 0 1px 0 var(--hi);margin:1.4rem auto 0;width:66%}
 .yorum-section h2{font-size:1.25rem;border-bottom:1px solid var(--line);padding-bottom:.45rem;margin-bottom:.45rem;text-align:center}
-/* Yorum tarihi: basligin altinda kucuk, soluk ve ortali. */
-.yorum-date{font-family:var(--ui);font-size:.78rem;color:var(--muted);text-align:center;margin:.1rem 0 .9rem}
+/* Yorum tarihi: basligin altinda, ortali. 07.10.2026 v1.51: zayif
+   duruyordu; boyutu buyutuldu, rengi ve kalinligi guclendirildi. */
+.yorum-date{font-family:var(--ui);font-size:.95rem;font-weight:600;color:var(--text);text-align:center;margin:.1rem 0 .9rem}
 .yorum-text{white-space:pre-wrap;line-height:1.65}
 /* Spoiler dugmesi kutu icinde ortalanir. */
 .yorum-toggle{font-family:var(--ui);font-size:.88rem;background:var(--well);border:1px solid var(--line);color:var(--text);padding:.5rem .7rem;border-radius:6px;cursor:pointer;box-shadow:inset 0 2px 5px var(--sh1);margin:0 auto .6rem;display:flex;width:fit-content;align-items:center;gap:.4rem}
