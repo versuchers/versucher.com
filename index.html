@@ -437,6 +437,11 @@ kbd{font-family:var(--ui);font-size:.72rem;background:var(--well);border:1px sol
 .yorum-toggle .spoiler-icon{font-size:1rem}
 .yorum-hidden{display:none}
 .yorum-body{white-space:pre-wrap;line-height:1.65}
+/* Yorum icerigi, ustteki detay satirlarinin deger sutunuyla ayni hizadan
+   baslar: etiket sutunu minmax(115px,38%) + .75rem bosluk kadar iceride.
+   Mobilde satirlar alt alta dizildigi icin girinti kaldirilir. */
+.yorum-section .yorum-toggle,.yorum-section .yorum-body{margin-left:calc(max(115px,38%) + .75rem)}
+@media (max-width:650px){.yorum-section .yorum-toggle,.yorum-section .yorum-body{margin-left:0}}
 </style>
 </head>
 <body>
