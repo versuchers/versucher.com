@@ -78,7 +78,9 @@ const SCHEMAS = {
     readCount: ['kaç kez okudum', 'kaç kez okundu'],
     originalDate: ['orijinal basım yılı', 'orijinal yayın yılı', 'orijinal yayın tarihi'],
     turkishPublishDate: ['türçe ilk basım yılı', 'türkiye yayın yılı', 'türkiye yayın yili', 'türkiye yayın tarihi', 'türkiye yayın. tarihi'],
-    firstReadDate: ['okuduğum yıl', 'ilk okuduğum yıl', 'ilk kez okunan tarihi', 'ilk kez okunduğu tarih']
+    firstReadDate: ['okuduğum yıl', 'ilk okuduğum yıl', 'ilk kez okunan tarihi', 'ilk kez okunduğu tarih'],
+    yorum: ['yorum'],
+    yorumTarihi: ['yorum tarihi', 'yorum tarih']
   },
   films: {
     homeOrder: ['anasayfa sıra', 'anasayfa sıralama'],
@@ -110,7 +112,8 @@ const SCHEMAS = {
     tmdb: ['tmdb linki'],
     imdb: ['imdb linki', 'imdb'],
     directorOrigin: ['yönetmen ülkesi', 'yönetmen köken', 'yönetmen nereli'],
-    yorum: ['yorum']
+    yorum: ['yorum'],
+    yorumTarihi: ['yorum tarihi', 'yorum tarih']
   },
   series: {
     homeOrder: ['anasayfa sıra', 'anasayfa sıralama'],
@@ -143,7 +146,9 @@ const SCHEMAS = {
     imdb: ['imdb'],
     tmdb: ['tmdb'],
     tvmaze: ['tvmaze linki'],
-    firstCity: ['ilk izlediğim şehir', 'ilk kez izlenen şehir']
+    firstCity: ['ilk izlediğim şehir', 'ilk kez izlenen şehir'],
+    yorum: ['yorum'],
+    yorumTarihi: ['yorum tarihi', 'yorum tarih']
   },
   playlists: {
     title: ['name'],
@@ -507,6 +512,8 @@ function makeItems(type, headers, rows) {
         readCountRaw: get('readCount'),
         readCount: numberValue(get('readCount')),
         turkishPublishDate: get('turkishPublishDate'),
+        yorum: get('yorum'),
+        yorumTarihi: get('yorumTarihi'),
       });
     } else if (type === 'films') {
       /* 05.10.2026 v1.31: oyuncular JSON biciminden cozulur (ad + rol). */
@@ -544,7 +551,8 @@ function makeItems(type, headers, rows) {
         tmdb: get('tmdb'),
         imdb: safeUrl(get('imdb')),
         directorOrigin: get('directorOrigin'),
-        yorum: get('yorum')
+        yorum: get('yorum'),
+        yorumTarihi: get('yorumTarihi')
       });
     } else if (type === 'series') {
       const doneValue = clean(get('done'));
@@ -588,7 +596,9 @@ function makeItems(type, headers, rows) {
         firstCity: get('firstCity'),
         imdb: safeUrl(get('imdb')),
         tmdb: safeUrl(get('tmdb')),
-        tvmaze: safeUrl(get('tvmaze'))
+        tvmaze: safeUrl(get('tvmaze')),
+        yorum: get('yorum'),
+        yorumTarihi: get('yorumTarihi')
       });
     } else {
       /* Playlistler: puani yok; izgara altinda sarki sayisi gosterilir. */
