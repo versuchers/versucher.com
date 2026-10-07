@@ -433,16 +433,14 @@ kbd{font-family:var(--ui);font-size:.72rem;background:var(--well);border:1px sol
 .yorum-section{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem 1.1rem;box-shadow:inset 0 1px 0 var(--hi);margin:1.4rem auto 0;width:66%}
 .yorum-section h2{font-size:1.25rem;border-bottom:1px solid var(--line);padding-bottom:.45rem;margin-bottom:.45rem;text-align:center}
 .yorum-text{white-space:pre-wrap;line-height:1.65}
-.yorum-toggle{font-family:var(--ui);font-size:.88rem;background:var(--well);border:1px solid var(--line);color:var(--text);padding:.5rem .7rem;border-radius:6px;cursor:pointer;box-shadow:inset 0 2px 5px var(--sh1);margin-bottom:.6rem;display:inline-flex;align-items:center;gap:.4rem}
+/* Spoiler dugmesi kutu icinde ortalanir. */
+.yorum-toggle{font-family:var(--ui);font-size:.88rem;background:var(--well);border:1px solid var(--line);color:var(--text);padding:.5rem .7rem;border-radius:6px;cursor:pointer;box-shadow:inset 0 2px 5px var(--sh1);margin:0 auto .6rem;display:flex;width:fit-content;align-items:center;gap:.4rem}
 .yorum-toggle:hover{color:var(--text)}
 .yorum-toggle .spoiler-icon{font-size:1rem}
 .yorum-hidden{display:none}
-.yorum-body{white-space:pre-wrap;line-height:1.65}
-/* Yorum icerigi, ustteki detay satirlarinin deger sutunuyla ayni hizadan
-   baslar: etiket sutunu minmax(115px,38%) + .75rem bosluk kadar iceride.
-   Mobilde satirlar alt alta dizildigi icin girinti kaldirilir. */
-.yorum-section .yorum-toggle,.yorum-section .yorum-body{margin-left:calc(max(115px,38%) + .75rem)}
-@media (max-width:650px){.yorum-section .yorum-toggle,.yorum-section .yorum-body{margin-left:0}}
+/* Yorum metni kutunun tam genisligini kullanir; kenar bosluklari
+   kutunun kendi padding'i ile korunur. */
+.yorum-body{white-space:pre-wrap;line-height:1.65;width:100%}
 /* Mobilde kutu tek sutuna dustugu icin yorum da tam genislik olur. */
 @media (max-width:700px){.yorum-section{width:100%}}
 </style>
