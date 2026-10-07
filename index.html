@@ -491,15 +491,20 @@ const FILTER_TITLES={author:'Yazar Adı',genre:'Tür',subgenre:'Alt Tür',author
    olur ve hangi field'a bakarlar (tür başına farklı field olabilir). */
 const ENTITY_TYPES={
   kisi:{field:'kisi',label:'Kişi'},
-  platform:{field:'platform',label:'Platform',filmField:'platform',seriesField:'platform',bookField:'acquisition'},
-  dil:{field:'dil',label:'Dil',filmField:'language',seriesField:'language',bookField:'writtenLanguage'},
+  /* 07.10.2026 v1.51: platform sayfasi kitap "Okudugum Format" degerlerini de
+     kapsasin (formats cipleri buraya geliyor, acquisition'da bulunamayinca
+     "Kayit bulunamadi" sayfasina dusuyordu). */
+  platform:{field:'platform',label:'Platform',filmField:'platform',seriesField:'platform',bookField:['acquisition','formats']},
+  dil:{field:'dil',label:'Dil',filmField:'language',seriesField:'language',bookField:['writtenLanguage','readLanguage']},
   /* 06.10.2026 v1.48: ulke ve sehir AYRILDI.
      - ulke: film/dizi Yapım Ülkesi, kitap Ülke (yazar).
      - sehir: film/dizi İlk izlediğim şehir, kitap Okuduğum Şehir. */
   ulke:{field:'ulke',label:'Ülke',filmField:'country',seriesField:'country',bookField:'authorOrigin'},
   sehir:{field:'sehir',label:'Tüketilen şehir',filmField:'firstCity',seriesField:'firstCity',bookField:'city'},
   yayinevi:{field:'yayinevi',label:'Yayınevi',bookField:'publisher'},
-  kategori:{field:'kategori',label:'Kategori',filmField:'genre',seriesField:'genre',bookField:'genre'}
+  /* 07.10.2026 v1.51: "Alt Tür" cipleri de kategori sayfasina geliyor;
+     subgenre alaninda aranmazsa bulunamiyordu. */
+  kategori:{field:'kategori',label:'Kategori',filmField:'genre',seriesField:'genre',bookField:['genre','subgenre']}
 };
 /* Navbar'da "Ana sayfa" YOK: site basligi zaten ana sayfaya gidiyor.
    Bu yuzden NAV icinde 'home' anahtari kalmadi. hrefForView()'in 'home'
@@ -539,7 +544,7 @@ function detectAppBase(){
      olur. Depo altinda yayinlamak gerekirse ayni kod calisir. */
   /* 'kisi' KISI SAYFALARI icin (/kisi/atlas-jeneric). Depo adi ayriminda
      taninmazsa "/arsiv/kisi/..." adresi "/kisi" sayfasi sanilir ve 404 doner. */
-  const known=[...Object.values(ROUTE_PREFIX),'films','series','books','favs','lists','etiket','tur','ara','yazarlar','yonetenler','kisi']
+  const known=[...Object.values(ROUTE_PREFIX),'films','series','books','favs','lists','etiket','tur','ara','yazarlar','yonetenler','kisi','varlik']
     .map(part=>part.toLocaleLowerCase('tr-TR'));
   const routeIndex=parts.findIndex(part=>known.includes(part.toLocaleLowerCase('tr-TR')));
   if(routeIndex===0)return '/';
@@ -1724,7 +1729,10 @@ const ENTITY_FIELD_MAP={
   platform:'platform',language:'dil',country:'ulke',
   director:'kisi',author:'kisi',translator:'kisi',publisher:'yayinevi',
   creator:'kisi',network:'yayinevi',sourceAuthor:'kisi',sourceWork:'kisi',
-  genre:'kategori',subgenre:'kategori',fiction:'kategori',
+  genre:'kategori',subgenre:'kategori',
+  /* 07.10.2026 v1.51: fiction ("kurgu"/"kurgu disi") bir kategori DEGIL;
+     kategori varlik sayfasinda hic eslesme bulunamazdi. Klasik filtre
+     sayfasi (/kitap/filtre/fiction/<slug>) fictionBucket ile dogru calisir. */
   authorOrigin:'ulke',acquisition:'platform',formats:'platform',
   writtenLanguage:'dil',readLanguage:'dil',
   /* 06.10.2026 v1.48: city ve firstCity artik "sehir" varligina gider,
