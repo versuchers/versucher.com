@@ -22,6 +22,11 @@ on:
   schedule:
     # Her saat, saatin 23. dakikasında (tam saatte GitHub zamanlayıcısı yoğun olur).
     - cron: '23 * * * *'
+  # 08.10.2026: "log" (gorsel) reposuna her push'ta ana site veriyi tazelesin.
+  # log reposundaki generate-index workflow'u deploy bitince bu olayi gonderir.
+  # Atlama (stamp skip) yalnizca schedule'da yapildigi icin bu olayda tam kosu olur.
+  repository_dispatch:
+    types: [log-guncellendi]
   # Elle tetikleme.
   workflow_dispatch:
 
