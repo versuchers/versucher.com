@@ -1235,10 +1235,13 @@ function searchRoleLabel(item,needle){
   const s=roles.length===1?roles[0]:roles.slice(0,-1).join(', ')+' ve '+roles[roles.length-1];
   return s.charAt(0).toLocaleUpperCase('tr-TR')+s.slice(1)+' olarak';
 }
-/* Sol filtre menusu: terimin gectigi kategoriler, coktan aza sirali.
-   Tek kategori varsa filtre gostermenin anlami yok. */
+/* Sol filtre menusu: terimin gectigi kategoriler, SEARCH_GROUPS sirasiyla
+   (Filmler, Diziler, Kitaplar, Playlistler) — 08.10.2026 v1.51: onceki
+   surum sonuc sayisina gore siraliyordu, boylece istenen kategori bazen
+   ortaya/sona dusuyordu. Sira artik sabit. Tek kategori varsa filtre
+   gostermenin anlami yok. */
 function searchFilterHtml(groups,active){
-  const list=(groups||[]).filter(g=>g.count>0).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label,'tr'));
+  const list=(groups||[]).filter(g=>g.count>0);
   if(list.length<2)return '';
   return list.map(g=>`<button type="button" class="sf-btn${active===g.type?' is-on':''}" data-sf="${g.type}" aria-pressed="${active===g.type?'true':'false'}"><span>${g.label}</span><span class="sf-count">${g.count.toLocaleString('tr-TR')}</span></button>`).join('');
 }
