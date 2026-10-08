@@ -1193,7 +1193,7 @@ function searchQuery(){
   if(at<0&&isLocal)return '';
   try{return new URLSearchParams(at<0?raw:raw.slice(at+1)).get('q')||''}catch(_){return ''}
 }
-/** Tum turlerde ayni anda arar; once tam eslesen ad, sonra baslayan ad, sonra icerenler. */
+/* 05.10.2026 v1.51: arama sadece baslayan (startWith) sonuçları gösterir; icerenler filtrelenir. */
 /* 05.10.2026 v1.31: searchSections artik kategori bazli sayim da doner
    (groups) ve istenirse tek kategoriye suzulur (only). Aktif filtre
    (searchFilter) sonuc vermiyorsa kendiliginden kalkar. */
@@ -1203,7 +1203,7 @@ function searchSections(q,only){
   if(!needle)return {html:'',total:0,groups:[],active:''};
   const rank=name=>name===needle?0:name.startsWith(needle)?1:2;
   const found=SEARCH_GROUPS.map(([type,label])=>{
-    const list=(D[type]||[]).filter(item=>item.searchText.includes(needle)).sort((a,b)=>{
+    const list=(D[type]||[]).filter(item=>item.searchText.includes(needle) && foldText(displayName(item)).startsWith(needle)).sort((a,b)=>{
       const an=foldText(displayName(a)),bn=foldText(displayName(b));
       return rank(an)-rank(bn)||an.localeCompare(bn,'tr');
     });
