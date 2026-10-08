@@ -1,8 +1,8 @@
 {
   "note": "Sheets A1 son-guncelleme damgalari. Saatlik akis (scripts/sheet-stamps.mjs) bunu okuyup ayniysa tam kosuyu atlar. Elle duzenlenmemeli.",
-  "checkedAt": "2026-10-08T14:33:21.169Z",
+  "checkedAt": "2026-10-08T14:39:31.760Z",
   "stamps": {
-    "books": "Son güncellenme tarihi: 08.10.2026 05:31 PM",
+    "books": "Son güncellenme tarihi: 08.10.2026 05:39 PM",
     "films": "Son güncellenme tarihi: 07.10.2026 06:40 PM",
     "series": "Son güncellenme tarihi: 07.10.2026 06:40 PM"
   }
