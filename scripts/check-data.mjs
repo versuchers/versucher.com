@@ -192,8 +192,6 @@ if (!existsSync(build)) {
 log('');
 log('== 6. Kritik alan dolulugu ==');
 const expect = [
-  ['books', 'firstReadSort', 'kitap ilk okunma siralama anahtari'],
-  ['books', 'firstReadLabel', 'kitap ilk okunma etiketi'],
   ['books', 'slug', 'adres'],
   ['films', 'slug', 'adres'],
   ['series', 'slug', 'adres'],
@@ -205,6 +203,27 @@ for (const [type, field, label] of expect) {
   const filled = items.filter((item) => item[field] !== undefined && item[field] !== null && String(item[field]).trim() !== '').length;
   if (filled !== items.length) fail(`${type}.${field} (${label}) ${filled}/${items.length} dolu`);
   else log(`   ${type}.${field} (${label}) ${filled}/${items.length}`);
+}
+/* 08.10.2026 v1.51: firstReadSort/firstReadLabel %100 sarti kaldirildi.
+   Tarihi bilinmeyen kitap NORMALDIR ("Okudugum Yil" bos birakilabilir —
+   or. "Hobbit" eklenip tarihi girilmediginde tum yayin kilitleniyordu).
+   Asil yakalanmasi gereken TOPLU KAYIP: sutun adi degisirse alanlar
+   topluca bosalir. %90 esigi bunu yakalar; birkac bos tarih sorun cikarmaz.
+   Tutarlilik (sort/label sayi esitligi) zaten bolum 7'de denetleniyor. */
+const dateExpect = [
+  ['books', 'firstReadSort', 'kitap ilk okunma siralama anahtari'],
+  ['books', 'firstReadLabel', 'kitap ilk okunma etiketi']
+];
+for (const [type, field, label] of dateExpect) {
+  const items = data[type]?.items;
+  if (!items) continue;
+  const filled = items.filter((item) => item[field] !== undefined && item[field] !== null && String(item[field]).trim() !== '').length;
+  const ratio = filled / items.length;
+  if (ratio < 0.9) {
+    fail(`${type}.${field} (${label}) ${filled}/${items.length} dolu = %${(ratio * 100).toFixed(0)}; esik %90 — sutun adi degismis olabilir`);
+  } else {
+    log(`   ${type}.${field} (${label}) ${filled}/${items.length} = %${(ratio * 100).toFixed(0)} (esik %90)`);
+  }
 }
 
 log('');
