@@ -1074,7 +1074,7 @@ function favoritesView(){
 function home(){
   /* Görünüm anahtarı ile veri anahtarı aynı değil ('lists' -> 'playlists'), dataType() gerekir. */
   const index=['films','series','books','lists'].map(kind=>{const type=dataType(kind);return `<li><a href="${esc(hrefFor('/'+kind))}" data-route="/${kind}"><span>${CFG[kind].label}</span><span>${(D[type]||[]).length}</span></a></li>`}).join('');
-  main.innerHTML=`<section class="welcome"><h1>versucher'in kişisel log arşivi</h1></section>${recentRows()}${randomSection()}<div class="sh"><h2>Raflar</h2></div><ul class="shelf">${index}</ul>`;
+  main.innerHTML=`<section class="welcome"><h1>kişisel log arşivim</h1></section>${recentRows()}${randomSection()}<div class="sh"><h2>Raflar</h2></div><ul class="shelf">${index}</ul>`;
 }
 function sortItems(list,how){
   const a=[...list];
