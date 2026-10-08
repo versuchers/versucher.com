@@ -77,8 +77,11 @@ header{position:relative;z-index:2;background:var(--panel);border-bottom:1px sol
 .bar{display:flex;align-items:center;gap:1.1rem;max-width:1100px;margin:0 auto;padding:.9rem 1.25rem}
 /* Baslik, nav ve dugmeler cubugun icinde DIKEYDE ORTALANIR. Onceki surumde
    baslik ve nav taban cizgisine gore hizalaniyordu; kullanicinin istegiyle
-   (08.10.2026) tum parcalar kutu ortasina gore ortalaniyor. */
-.bar>.mark,nav,.bar-actions{align-self:center}
+   (08.10.2026) tum parcalar kutu ortasina gore ortalaniyor.
+   DIKKAT: secici ".bar>nav" OLMALI, ciplak "nav" degil — yoksa sayfadaki
+   diger <nav> ogeleri (arama filtresi .search-filter gibi) istemeden
+   align-self:center alip dikeyde ortalaniyordu. */
+.bar>.mark,.bar>nav,.bar-actions{align-self:center}
 /* Site basligi: "versucher", Manufacturing Consent, kalin.
    Font yalnizca 400 agirlikta yayinlandigi icin 700 istegi tarayiciya
    "sentetik kalin" yaptirir; text-stroke kalinligi keskinlestirir.
