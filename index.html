@@ -1203,7 +1203,7 @@ function searchSections(q,only){
   if(!needle)return {html:'',total:0,groups:[],active:''};
   const rank=name=>name===needle?0:name.startsWith(needle)?1:2;
   const found=SEARCH_GROUPS.map(([type,label])=>{
-    const list=(D[type]||[]).filter(item=>item.searchText.includes(needle) && (foldText(displayName(item)).split(' ').some(w => w.startsWith(needle)) || (item.author&&foldText(item.author).includes(needle)) || (item.sourceAuthor&&foldText(item.sourceAuthor).includes(needle)))).sort((a,b)=>{
+    const list=(D[type]||[]).filter(item=>item.searchText.includes(needle) && (foldText(displayName(item)).split(' ').some(w => w.startsWith(needle)) || (item.author&&foldText(item.author).includes(needle)) || (item.sourceAuthor&&foldText(item.sourceAuthor).includes(needle)) || (item.directorRaw&&foldText(item.directorRaw).includes(needle)))).sort((a,b)=>{
       const an=foldText(displayName(a)),bn=foldText(displayName(b));
       return rank(an)-rank(bn)||an.localeCompare(bn,'tr');
     });
